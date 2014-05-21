@@ -25,6 +25,8 @@ sizeOfWindow = 60000
 batchSize = 5000
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
+# TODO Go in a loop till the end and keep getting the next window till we are
+# done.
 tweetSet = tweetRetriever.getNextWindow()
 print("--- Finished loading Tweets ---")
 

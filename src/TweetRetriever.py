@@ -10,6 +10,7 @@ class TweetRetriever:
 		self.batchSize = batchSize
 		self.currentTweets = []
 		self.currentOffset = 0
+		self.eof = 0
 
 	def initialise(self):
 		""" Must be called before anything else. """
@@ -19,6 +20,8 @@ class TweetRetriever:
 
 	def getNextWindow(self):
 		""" Retrieves the next window of Tweets. """
+		if self.eof == 1:
+			return -1
 		# If empty then we have not yet got any Tweets
 		toLoad = 0
 		if len(self.currentTweets) == 0:
@@ -30,6 +33,7 @@ class TweetRetriever:
 		numberConsecutivePasses = 0
 		loaded = 0
 
+
 		self.jsonFile.seek(self.currentOffset)
 		while (numberConsecutivePasses < 100 and loaded < toLoad):
 			try:
@@ -40,6 +44,7 @@ class TweetRetriever:
 				# so we can break the loop when this happens
 				if line == "":
 					print("Broke out of loop")
+					self.eof = 1
 					break
 				# Translate the JSON string into python JSON representation
 				jsonObject = self.decoder.decode(line)

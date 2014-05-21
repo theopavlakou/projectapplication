@@ -45,3 +45,15 @@ class DictionaryOfWords:
 			else:
 				break
 		return listToReturn
+
+	def getMostPopularWordsAndRank(self, limit):
+		listOfTuples = self.getSortedListOfTuples()
+		listToReturn = {}
+		x = 1
+		for (value, key) in listOfTuples:  # @UnusedVariable
+			if x <= limit:
+				listToReturn[key] = x - 1
+				x += 1
+			else:
+				break
+		return listToReturn

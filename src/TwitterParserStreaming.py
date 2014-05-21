@@ -16,6 +16,7 @@ Created on 21 May 2014
 from dictionaryOfWords import DictionaryOfWords
 from TweetRetriever import TweetRetriever
 from MatrixBuilder import MatrixBuilder
+from TPowerAlgorithm import TPowerAlgorithm
 
 ####################################################
 ##  The file containing the Tweets as JSONs
@@ -30,6 +31,7 @@ sizeOfWindow = 5000
 batchSize = 5000
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
+tPAlgorithm = TPowerAlgorithm()
 
 ####################################################
 ##  Load the Tweets from the file
@@ -72,6 +74,16 @@ while not tweetRetriever.eof:
         # Next row
         tweetNumber = tweetNumber + 1
     print("--- Finished populating matrix ---")
+
+    ############################################################################################
+    # With the matrix populated run the algorithm on it
+    ############################################################################################
+    cooccurrenceMatrix = matrixBuilder.getCooccurrenceMatrix()
+    [sparsePC, eigenvalue] = tPAlgorithm.getSparsePC(cooccurrenceMatrix, 5)
+    print("--- Sparse Eigenvector ---")
+    print(sparsePC.nonzero()[0])
+    print("--- Eigenvalue ---")
+    print(eigenvalue)
 
 print("--- End ---")
 

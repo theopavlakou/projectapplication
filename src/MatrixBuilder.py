@@ -23,6 +23,7 @@ class MatrixBuilder:
         self.noCols = numberOfCols
         self.matrix = lil_matrix((self.noRows, self.noCols), dtype = float)
 
+
     def addElement(self, row, col, value):
         """
         Adds an element to the matrix. If it is successful, it returns 0, else it returns
@@ -41,3 +42,9 @@ class MatrixBuilder:
         else:
             return -1
 
+    def getCooccurrenceMatrix(self):
+        """ Returns the cooccurrence matrix given by S'*S."""
+        cooccurrenceMatrix = dot(self.matrix.transpose(), self.matrix).todense()
+        for i in range(self.noCols):
+            cooccurrenceMatrix[i, i] = 0
+        return cooccurrenceMatrix

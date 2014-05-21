@@ -34,6 +34,10 @@ class TestMatrixBuilder(unittest.TestCase):
         self.MatrixBuilder.addElement(3, 20, 10.3)
         self.assertTrue(self.MatrixBuilder.addElement(3, 20, 10.3) == -1, "Did not return -1")
 
+    def testGetCooccurenceMatrix(self):
+        cooccurenceMatrix = self.MatrixBuilder.getCooccurrenceMatrix()
+        self.assertTrue(cooccurenceMatrix.shape == (self.numberCols, self.numberCols) )
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

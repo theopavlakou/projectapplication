@@ -47,8 +47,8 @@ class TPowerAlgorithm:
 		# TODO
 		# This initialises the first element to 1.
 		# Should be fixed.
-		x0 = zeros(A.shape[0])
-		x0[0] = 1
+		x0 = ones(A.shape[0])
+# 		x0[0] = 1
 
 		# Turns x into a sparse vector
 		x = csc_matrix(x0)

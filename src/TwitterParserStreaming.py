@@ -97,7 +97,7 @@ while not tweetRetriever.eof:
     # With the matrix populated run the algorithm on it
     ############################################################################################
     cooccurrenceMatrix = matrixBuilder.getCooccurrenceMatrix()
-    [sparsePC, eigenvalue] = tPAlgorithm.getSparsePC(cooccurrenceMatrix, 5)
+    [sparsePC, eigenvalue] = tPAlgorithm.getSparsePC(cooccurrenceMatrix, 10)
     print("--- Sparse Eigenvector ---")
     print(sparsePC.nonzero()[0])
     pCWords = [listOfWords[index][0] for index in sparsePC.nonzero()[0]]

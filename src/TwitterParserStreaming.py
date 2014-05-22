@@ -19,17 +19,18 @@ from MatrixBuilder import MatrixBuilder
 from TPowerAlgorithm import TPowerAlgorithm
 import matplotlib.pyplot as plt
 import time
+import pickle
 ####################################################
 ##  The file containing the Tweets as JSONs
 ####################################################
-jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/twitter_data_all'
+jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/twitter_data'
 
 ####################################################
 ##  Initialize
 ####################################################
 # TODO: Change this to be smaller than the actual file.
-sizeOfWindow = 20000
-batchSize = 5000
+sizeOfWindow = 10000
+batchSize = 1000
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
@@ -52,6 +53,7 @@ pCFile = open("pcs", "w")
 ####################################################
 ##  Load the Tweets from the file
 ####################################################
+toSave = []
 i = 0
 while not tweetRetriever.eof:
     print("--- Loading Tweets ---")
@@ -129,6 +131,7 @@ while not tweetRetriever.eof:
         pCFile.write( word + " ")
 
     pCFile.write(str(eigenvalue))
+    toSave.append((pCWords, eigenvalue))
 
     # TODO: draw with matplotlib here and keep updating:
     # see: http://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
@@ -150,6 +153,9 @@ while not tweetRetriever.eof:
 #     time.sleep(0.005)
 # plt.show()
 pCFile.close()
+outputPickle = open('pCPickle.pkl', 'wb')
+pickle.dump(toSave, outputPickle)
+outputPickle.close()
 print("--- End ---")
 
 

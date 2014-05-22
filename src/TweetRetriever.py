@@ -43,7 +43,7 @@ class TweetRetriever:
 				# The lines will contain a non-empty string until the eof
 				# so we can break the loop when this happens
 				if line == "":
-					print("Broke out of loop")
+					print("------ Reached the end of file ------")
 					self.eof = 1
 					break
 				# Translate the JSON string into python JSON representation

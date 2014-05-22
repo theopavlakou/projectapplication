@@ -8,20 +8,20 @@
 # the bag of words and Tweet 3 contains word {6}.
 ############################################################################################################################
 
-from dictionaryOfWords import DictionaryOfWords
+from DictionaryOfWords import DictionaryOfWords
 from TweetRetriever import TweetRetriever
 
 ####################################################
 ##  The file containing the Tweets as JSONs
 ####################################################
-jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/beach_boys'
+jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/twitter_data'
 
 ####################################################
 ##  Load the Tweets from the file
 ####################################################
 print("--- Loading Tweets ---")
 # TODO Change this to be smaller than the actual file.
-sizeOfWindow = 60000
+sizeOfWindow = 60000000
 batchSize = 5000
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()

@@ -11,9 +11,8 @@ class TweetParser:
 		words = string.rsplit()
 		cleanWords = []
 		for word in words:
-
 			# Strip all the punctuation from the edges of the words and should all be lowercase
-			wordStripped = word.strip("~`;?!*,.\"'-+=:#)(^%$\u00a3_").lower()
+			wordStripped = word.strip("~`;?!*,.\"'-+=:#)(^%$_").lower()
 
 			if len(wordStripped) > 3 and wordStripped not in self.irrelevantStrings and self.isValidWord(wordStripped):
 				cleanWords.append(wordStripped)
@@ -41,9 +40,8 @@ class TweetParser:
 		words = string.rsplit()
 		cleanWords = {}
 		for word in words:
-
 			# Strip all the punctuation from the edges of the words and should all be lowercase
-			wordStripped = word.strip("~`;?!*,.\"'-+=:#)(^%$\u00a3_").lower()
+			wordStripped = word.strip("~`;?!*,.\"'-+=:#)(^%$_").lower()
 
 			if len(wordStripped) > 3 and wordStripped not in self.irrelevantStrings and self.isValidWord(wordStripped):
 				cleanWords[wordStripped] = 1

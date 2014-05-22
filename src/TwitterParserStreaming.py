@@ -13,7 +13,7 @@ Created on 21 May 2014
 # the bag of words and Tweet 3 contains word {6}.
 ############################################################################################################################
 
-from dictionaryOfWords import DictionaryOfWords
+from DictionaryOfWords import DictionaryOfWords
 from TweetRetriever import TweetRetriever
 from MatrixBuilder import MatrixBuilder
 from TPowerAlgorithm import TPowerAlgorithm
@@ -21,24 +21,26 @@ from TPowerAlgorithm import TPowerAlgorithm
 ####################################################
 ##  The file containing the Tweets as JSONs
 ####################################################
-jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/beach_boys'
+jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/twitter_data'
 
 ####################################################
 ##  Initialize
 ####################################################
 # TODO Change this to be smaller than the actual file.
-sizeOfWindow = 5000
+sizeOfWindow = 10000000
 batchSize = 5000
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
-
+verbose = 3
 ####################################################
 ##  Load the Tweets from the file
 ####################################################
 while not tweetRetriever.eof:
     print("--- Loading Tweets ---")
     tweetSet = tweetRetriever.getNextWindow()
+    if verbose == 3:
+        print("--- Number of Tweets: " + str(len(tweetSet)) + " ---")
     print("--- Finished loading Tweets ---")
 
     ########################################################
@@ -50,9 +52,25 @@ while not tweetRetriever.eof:
     for tweet in tweetSet:
         dictOfWords.addFromSet(tweet.listOfWords())
     listOfWords = dictOfWords.getMostPopularWordsAndOccurrences(3000)
-    wordRank = dictOfWords.getMostPopularWordsAndRank(3000)
+#     wordRank = dictOfWords.getMostPopularWordsAndRank(3000)
     print("--- Finished loading most common words in the Tweets ---")
 
+    ########################################################
+    ##  Open the file to output the words with their index.
+    ########################################################
+    print("--- Opening file to output index of words to ---")
+    wordsFile = open("cwi", "w")
+    # Matlab starts indexing from 1
+    i = 1
+    for (word, occurrence) in listOfWords:
+        if isinstance(word, unicode):
+            word = word.encode('utf-8','ignore')
+        else:
+            print(word)
+        wordsFile.write(str(i) + " " + word + " " + str(occurrence) + "\n")
+        i = i + 1
+    print("--- Closing file to output index of words to ---")
+    wordsFile.close()
     ########################################################
     ##  Create Sparse Matrix
     ########################################################
@@ -82,6 +100,10 @@ while not tweetRetriever.eof:
     [sparsePC, eigenvalue] = tPAlgorithm.getSparsePC(cooccurrenceMatrix, 5)
     print("--- Sparse Eigenvector ---")
     print(sparsePC.nonzero()[0])
+    pCWords = [listOfWords[index][0] for index in sparsePC.nonzero()[0]]
+#     for index in sparsePC.nonzero()[0]:
+#         print (listOfWords[index][0])
+    print(pCWords)
     print("--- Eigenvalue ---")
     print(eigenvalue)
 

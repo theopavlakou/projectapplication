@@ -17,7 +17,8 @@ from DictionaryOfWords import DictionaryOfWords
 from TweetRetriever import TweetRetriever
 from MatrixBuilder import MatrixBuilder
 from TPowerAlgorithm import TPowerAlgorithm
-
+import matplotlib.pyplot as plt
+import time
 ####################################################
 ##  The file containing the Tweets as JSONs
 ####################################################
@@ -27,15 +28,31 @@ jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/
 ##  Initialize
 ####################################################
 # TODO: Change this to be smaller than the actual file.
-sizeOfWindow = 10000
-batchSize = 1000
+sizeOfWindow = 20000
+batchSize = 5000
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
 verbose = 3
+# TODO: For some reason this doesn't work
+pCFile = open("pcs", "w")
+####################################################
+##  TODO: Set up figure
+####################################################
+# fig = plt.figure()
+# xCurrent = 0
+# plt.ion()
+# x = []
+# y = []
+# plt.show()
+# plt.axis([0, 100, -1, 500])
+# plt.xlabel("Time")
+# plt.ylabel("Information")
+
 ####################################################
 ##  Load the Tweets from the file
 ####################################################
+i = 0
 while not tweetRetriever.eof:
     print("--- Loading Tweets ---")
     tweetSet = tweetRetriever.getNextWindow()
@@ -52,25 +69,24 @@ while not tweetRetriever.eof:
     for tweet in tweetSet:
         dictOfWords.addFromSet(tweet.listOfWords())
     listOfWords = dictOfWords.getMostPopularWordsAndOccurrences(3000)
-#     wordRank = dictOfWords.getMostPopularWordsAndRank(3000)
     print("--- Finished loading most common words in the Tweets ---")
 
-    ########################################################
-    ##  Open the file to output the words with their index.
-    ########################################################
-    print("--- Opening file to output index of words to ---")
-    wordsFile = open("cwi", "w")
-    # Matlab starts indexing from 1
-    i = 1
-    for (word, occurrence) in listOfWords:
-        if isinstance(word, unicode):
-            word = word.encode('utf-8','ignore')
-        else:
-            print(word)
-        wordsFile.write(str(i) + " " + word + " " + str(occurrence) + "\n")
-        i = i + 1
-    print("--- Closing file to output index of words to ---")
-    wordsFile.close()
+#     ########################################################
+#     ##  Open the file to output the words with their index.
+#     ########################################################
+#     print("--- Opening file to output index of words to ---")
+#     wordsFile = open("cwi", "w")
+#     # Matlab starts indexing from 1
+#     i = 1
+#     for (word, occurrence) in listOfWords:
+#         if isinstance(word, unicode):
+#             word = word.encode('utf-8','ignore')
+#         else:
+#             print(word)
+#         wordsFile.write(str(i) + " " + word + " " + str(occurrence) + "\n")
+#         i = i + 1
+#     print("--- Closing file to output index of words to ---")
+#     wordsFile.close()
     ########################################################
     ##  Create Sparse Matrix
     ########################################################
@@ -102,15 +118,11 @@ while not tweetRetriever.eof:
     print(sparsePC.nonzero()[0])
     pCWords = [listOfWords[index][0] for index in sparsePC.nonzero()[0]]
 
-    # TODO: draw with matplotlib here and keep updating:
-    # see: http://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
-    # see: http://matplotlib.org/users/text_intro.html
-    # see: http://stackoverflow.com/questions/16183462/saving-images-in-python-at-a-very-high-quality
+
     print(pCWords)
     print("--- Eigenvalue ---")
     print(eigenvalue)
 
-    pCFile = open("pcs", "w")
     for word in pCWords:
         if isinstance(word, unicode):
             word = word.encode('utf-8','ignore')
@@ -118,6 +130,26 @@ while not tweetRetriever.eof:
 
     pCFile.write(str(eigenvalue))
 
+    # TODO: draw with matplotlib here and keep updating:
+    # see: http://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
+    # see: http://matplotlib.org/users/text_intro.html
+    # see: http://stackoverflow.com/questions/16183462/saving-images-in-python-at-a-very-high-quality
+    # see: http://www.ucs.cam.ac.uk/docs/course-notes/unix-courses/pythontopics/graphs.pdf
+
+#     # TODO: Graph plotting stuff
+#     x.append(i)
+#     y.append(eigenvalue)
+#     if eigenvalue >150:
+#         plt.arrow(i, eigenvalue, 1, 4, width=0.005, head_width=0.05, head_starts_at_zero=False)
+#         plt.annotate("this is 100", (i, eigenvalue+4))
+#         plt.scatter(i,eigenvalue, c="red")
+#     else:
+#         plt.scatter(i,eigenvalue, c="blue")
+#     i = i + 1
+#     plt.draw()
+#     time.sleep(0.005)
+# plt.show()
+pCFile.close()
 print("--- End ---")
 
 

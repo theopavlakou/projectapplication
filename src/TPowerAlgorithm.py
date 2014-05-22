@@ -43,12 +43,7 @@ class TPowerAlgorithm:
 		# Tolerance related to the difference in eigenvalues
 		tolerance = 0.0000001
 		maxIterations = 50
-		# Initialisation
-		# TODO
-		# This initialises the first element to 1.
-		# Should be fixed.
 		x0 = ones(A.shape[0])
-# 		x0[0] = 1
 
 		# Turns x into a sparse vector
 		x = csc_matrix(x0)

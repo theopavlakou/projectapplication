@@ -21,14 +21,14 @@ from TPowerAlgorithm import TPowerAlgorithm
 ####################################################
 ##  The file containing the Tweets as JSONs
 ####################################################
-jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/twitter_data'
+jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/twitter_data_all'
 
 ####################################################
 ##  Initialize
 ####################################################
-# TODO Change this to be smaller than the actual file.
-sizeOfWindow = 10000000
-batchSize = 5000
+# TODO: Change this to be smaller than the actual file.
+sizeOfWindow = 10000
+batchSize = 1000
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
@@ -101,11 +101,22 @@ while not tweetRetriever.eof:
     print("--- Sparse Eigenvector ---")
     print(sparsePC.nonzero()[0])
     pCWords = [listOfWords[index][0] for index in sparsePC.nonzero()[0]]
-#     for index in sparsePC.nonzero()[0]:
-#         print (listOfWords[index][0])
+
+    # TODO: draw with matplotlib here and keep updating:
+    # see: http://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
+    # see: http://matplotlib.org/users/text_intro.html
+    # see: http://stackoverflow.com/questions/16183462/saving-images-in-python-at-a-very-high-quality
     print(pCWords)
     print("--- Eigenvalue ---")
     print(eigenvalue)
+
+    pCFile = open("pcs", "w")
+    for word in pCWords:
+        if isinstance(word, unicode):
+            word = word.encode('utf-8','ignore')
+        pCFile.write( word + " ")
+
+    pCFile.write(str(eigenvalue))
 
 print("--- End ---")
 

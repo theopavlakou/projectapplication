@@ -29,8 +29,8 @@ jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/
 ##  Initialize
 ####################################################
 # TODO: Change this to be smaller than the actual file.
-sizeOfWindow = 10000
-batchSize = 1000
+sizeOfWindow = 50000
+batchSize = 500
 pickleFileName = "pCPickle_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
@@ -39,12 +39,12 @@ verbose = 3
 # TODO: For some reason this doesn't work
 pCFile = open("pcs", "w")
 
-
 ####################################################
 ##  Load the Tweets from the file
 ####################################################
 toSave = []
 i = 0
+t0 = time.time()
 while not tweetRetriever.eof:
     print("--- Loading Tweets ---")
     tweetSet = tweetRetriever.getNextWindow()
@@ -90,7 +90,7 @@ while not tweetRetriever.eof:
     print("--- Populating matrix ---")
     tweetNumber = 0
     startDate = tweetSet[0].date
-    endDate = tweetSet[sizeOfWindow-1].date
+    endDate = tweetSet[len(tweetSet)-1].date
     for tweet in tweetSet:
         # Get the list of words in the tweet
         tweetWordList = tweet.listOfWords()
@@ -144,10 +144,14 @@ while not tweetRetriever.eof:
 #     plt.draw()
 #     time.sleep(0.005)
 # plt.show()
+t1 = time.time()
+totalTime = t1 - t0
+print("Average time per iteration = " + str(totalTime/len(toSave)))
 pCFile.close()
 outputPickle = open(pickleFileName, 'wb')
 pickle.dump(toSave, outputPickle)
 outputPickle.close()
+
 print("--- End ---")
 
 

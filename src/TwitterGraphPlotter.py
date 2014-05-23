@@ -4,11 +4,13 @@ Created on 23 May 2014
 @author: theopavlakou
 '''
 import matplotlib.pyplot as plt
-import time
 
+# TODO: Graph plotter should NOT know anything about when a point is an actual event or not.
+# This info should be passed to it.
 class TwitterGraphPlotter(object):
     '''
     A class to plot graphs given data from the TwitterParserStreaming module.
+
     '''
 
 
@@ -25,6 +27,10 @@ class TwitterGraphPlotter(object):
         plt.ion()
 
     def plotGraph(self):
+        '''
+        Plots the graph of all the data points it possesses.
+        Plots points that signify events in a different colour.
+        '''
         i = 0
         prevEigVal = self.data[0][1]
         numDataPoints = len(self.data)
@@ -32,7 +38,7 @@ class TwitterGraphPlotter(object):
         for dataPoint in self.data:
             eigVal = dataPoint[1]
 
-            if eigVal > prevEigVal*5:
+            if eigVal > prevEigVal*3 and prevEigVal > 30:
                 currentColour = "red"
                 plt.annotate(dataPoint[2], (i, eigVal+20))
             elif prevEigVal > eigVal*5:
@@ -48,4 +54,10 @@ class TwitterGraphPlotter(object):
             plt.draw()
 
     def keepGraphLocked(self):
+        '''
+        Keeps the graph open
+        '''
         plt.show(block=True)
+
+    def saveGraph(self, nameOfFile):
+        plt.savefig(nameOfFile, format='eps', dpi=1000)

@@ -31,24 +31,14 @@ jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/
 # TODO: Change this to be smaller than the actual file.
 sizeOfWindow = 10000
 batchSize = 1000
+pickleFileName = "pCPickle_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
 verbose = 3
 # TODO: For some reason this doesn't work
 pCFile = open("pcs", "w")
-####################################################
-##  TODO: Set up figure
-####################################################
-# fig = plt.figure()
-# xCurrent = 0
-# plt.ion()
-# x = []
-# y = []
-# plt.show()
-# plt.axis([0, 100, -1, 500])
-# plt.xlabel("Time")
-# plt.ylabel("Information")
+
 
 ####################################################
 ##  Load the Tweets from the file
@@ -155,7 +145,7 @@ while not tweetRetriever.eof:
 #     time.sleep(0.005)
 # plt.show()
 pCFile.close()
-outputPickle = open('pCPickle_10000_1000.pkl', 'wb')
+outputPickle = open(pickleFileName, 'wb')
 pickle.dump(toSave, outputPickle)
 outputPickle.close()
 print("--- End ---")

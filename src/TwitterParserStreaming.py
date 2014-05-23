@@ -29,8 +29,8 @@ jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/
 ##  Initialize
 ####################################################
 # TODO: Change this to be smaller than the actual file.
-sizeOfWindow = 20000
-batchSize = 5000
+sizeOfWindow = 10000
+batchSize = 1000
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
@@ -99,6 +99,8 @@ while not tweetRetriever.eof:
     ############################################################################################
     print("--- Populating matrix ---")
     tweetNumber = 0
+    startDate = tweetSet[0].date
+    endDate = tweetSet[sizeOfWindow-1].date
     for tweet in tweetSet:
         # Get the list of words in the tweet
         tweetWordList = tweet.listOfWords()
@@ -131,7 +133,7 @@ while not tweetRetriever.eof:
         pCFile.write( word + " ")
 
     pCFile.write(str(eigenvalue))
-    toSave.append((pCWords, eigenvalue))
+    toSave.append((pCWords, eigenvalue, startDate, endDate))
 
     # TODO: draw with matplotlib here and keep updating:
     # see: http://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
@@ -153,7 +155,7 @@ while not tweetRetriever.eof:
 #     time.sleep(0.005)
 # plt.show()
 pCFile.close()
-outputPickle = open('pCPickle_2000_5000.pkl', 'wb')
+outputPickle = open('pCPickle_10000_1000.pkl', 'wb')
 pickle.dump(toSave, outputPickle)
 outputPickle.close()
 print("--- End ---")

@@ -49,7 +49,7 @@ class TweetRetriever:
 				# Translate the JSON string into python JSON representation
 				jsonObject = self.decoder.decode(line)
 				# TODO: Also add date and geo location information
-				tweet = Tweet(jsonObject["text"])
+				tweet = Tweet(jsonObject["text"], jsonObject["created_at"])
 				# If we have more than the window size then pop the oldest off
 				if len(self.currentTweets) == self.windowSize:
 					prevTweet = self.currentTweets.pop(0)  # @UnusedVariable

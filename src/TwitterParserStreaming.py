@@ -29,8 +29,8 @@ jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/
 ##  Initialize
 ####################################################
 # TODO: Change this to be smaller than the actual file.
-sizeOfWindow = 10000
-batchSize = 1000
+sizeOfWindow = 20000
+batchSize = 5000
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
@@ -153,7 +153,7 @@ while not tweetRetriever.eof:
 #     time.sleep(0.005)
 # plt.show()
 pCFile.close()
-outputPickle = open('pCPickle.pkl', 'wb')
+outputPickle = open('pCPickle_2000_5000.pkl', 'wb')
 pickle.dump(toSave, outputPickle)
 outputPickle.close()
 print("--- End ---")

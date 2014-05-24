@@ -22,13 +22,13 @@ import pickle
 ####################################################
 ##  The file containing the Tweets as JSONs
 ####################################################
-jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/twitter_data'
+jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/twitter_data_all'
 
 ####################################################
 ##  Initialize
 ####################################################
-sizeOfWindow = 4000
-batchSize = 400
+sizeOfWindow = 10000
+batchSize = 1000
 pickleFileName = "pCPickle_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()

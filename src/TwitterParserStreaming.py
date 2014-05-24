@@ -17,7 +17,6 @@ from DictionaryOfWords import DictionaryOfWords
 from TweetRetriever import TweetRetriever
 from MatrixBuilder import MatrixBuilder
 from TPowerAlgorithm import TPowerAlgorithm
-import matplotlib.pyplot as plt
 import time
 import pickle
 ####################################################
@@ -28,16 +27,13 @@ jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/
 ####################################################
 ##  Initialize
 ####################################################
-# TODO: Change this to be smaller than the actual file.
-sizeOfWindow = 50000
-batchSize = 500
+sizeOfWindow = 4000
+batchSize = 400
 pickleFileName = "pCPickle_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
 verbose = 3
-# TODO: For some reason this doesn't work
-pCFile = open("pcs", "w")
 
 ####################################################
 ##  Load the Tweets from the file
@@ -46,6 +42,7 @@ toSave = []
 i = 0
 t0 = time.time()
 while not tweetRetriever.eof:
+    ta = time.time()
     print("--- Loading Tweets ---")
     tweetSet = tweetRetriever.getNextWindow()
     if verbose == 3:
@@ -117,13 +114,9 @@ while not tweetRetriever.eof:
     print("--- Eigenvalue ---")
     print(eigenvalue)
 
-    for word in pCWords:
-        if isinstance(word, unicode):
-            word = word.encode('utf-8','ignore')
-        pCFile.write( word + " ")
-
-    pCFile.write(str(eigenvalue))
     toSave.append((pCWords, eigenvalue, startDate, endDate))
+    tb = time.time()
+    print ("Time for iteration: " + str(tb-ta))
 
     # TODO: draw with matplotlib here and keep updating:
     # see: http://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
@@ -147,7 +140,6 @@ while not tweetRetriever.eof:
 t1 = time.time()
 totalTime = t1 - t0
 print("Average time per iteration = " + str(totalTime/len(toSave)))
-pCFile.close()
 outputPickle = open(pickleFileName, 'wb')
 pickle.dump(toSave, outputPickle)
 outputPickle.close()

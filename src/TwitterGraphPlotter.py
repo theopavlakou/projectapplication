@@ -38,7 +38,7 @@ class TwitterGraphPlotter(object):
         for dataPoint in self.data:
             eigVal = dataPoint[1]
 
-            if eigVal > prevEigVal*3 and prevEigVal > 30:
+            if eigVal > prevEigVal*2 and prevEigVal > 30:
                 currentColour = "red"
                 plt.annotate(dataPoint[2], (i, eigVal+20))
             elif prevEigVal > eigVal*5:

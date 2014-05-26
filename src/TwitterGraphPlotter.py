@@ -26,29 +26,33 @@ class TwitterGraphPlotter(object):
         plt.ylabel(ylabel)
         plt.ion()
 
-    def plotGraph(self):
+    def plotGraph(self, plotDates=True):
         '''
         Plots the graph of all the data points it possesses.
         Plots points that signify events in a different colour.
         '''
         i = 0
-        prevEigVal = self.data[0][1]
+#         prevEigVal = self.data[0][1]
         numDataPoints = len(self.data)
         currentColour = "blue"
         for dataPoint in self.data:
             eigVal = dataPoint[1]
 
-            if eigVal > prevEigVal*2 and prevEigVal > 30:
+#             if eigVal > prevEigVal*3 and prevEigVal > 30:
+            if eigVal > 180:
                 currentColour = "red"
-                plt.annotate(dataPoint[2], (i, eigVal+20))
-            elif prevEigVal > eigVal*5:
+                if plotDates:
+                    plt.annotate(dataPoint[2], (i, eigVal+20))
+#             elif prevEigVal > eigVal*3 or eigVal < 100:
+            else:
                 currentColour = "blue"
-                plt.annotate(dataPoint[3], (i, eigVal+20))
-            elif i == 0:
+                if plotDates:
+                    plt.annotate(dataPoint[3], (i, eigVal+20))
+            if i == 0:
                 plt.annotate(dataPoint[2], (i, eigVal+20))
             elif i == numDataPoints - 1:
                 plt.annotate(dataPoint[3], (i, eigVal+20))
-            prevEigVal = eigVal
+#             prevEigVal = eigVal
             plt.scatter(i,eigVal, c=currentColour)
             i = i + 1
             plt.draw()

@@ -27,9 +27,9 @@ jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/
 ####################################################
 ##  Initialize
 ####################################################
-sizeOfWindow = 10000
-batchSize = 1000
-pickleFileName = "pCPickle_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
+sizeOfWindow = 15000
+batchSize = 3000
+pickleFileName = "pCPickle_all_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()

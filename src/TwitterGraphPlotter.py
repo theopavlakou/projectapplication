@@ -4,6 +4,8 @@ Created on 23 May 2014
 @author: theopavlakou
 '''
 import matplotlib.pyplot as plt
+import pickle
+from EventProbabilityCalculator import EventProbabilityCalculator
 
 # TODO: Graph plotter should NOT know anything about when a point is an actual event or not.
 # This info should be passed to it.
@@ -26,11 +28,16 @@ class TwitterGraphPlotter(object):
         plt.ylabel(ylabel)
         plt.ion()
 
+
     def plotGraph(self, plotDates=True):
         '''
         Plots the graph of all the data points it possesses.
         Plots points that signify events in a different colour.
         '''
+        pkl_file = open("w.pkl", 'rb')
+        w = pickle.load(pkl_file)
+        pkl_file.close()
+        eventProbabilityCalculator = EventProbabilityCalculator(w)
         i = 0
 #         prevEigVal = self.data[0][1]
         numDataPoints = len(self.data)
@@ -39,15 +46,16 @@ class TwitterGraphPlotter(object):
             eigVal = dataPoint[1]
 
 #             if eigVal > prevEigVal*3 and prevEigVal > 30:
-            if eigVal > 180:
-                currentColour = "red"
-                if plotDates:
-                    plt.annotate(dataPoint[2], (i, eigVal+20))
+#             if eigVal > 180:
+            rIntensity = eventProbabilityCalculator.probabilityOfEventWithLambda(eigVal)
+            currentColour = (rIntensity, 0, 1-rIntensity)
+            if plotDates:
+                plt.annotate(dataPoint[2], (i, eigVal+20))
 #             elif prevEigVal > eigVal*3 or eigVal < 100:
-            else:
-                currentColour = "blue"
-                if plotDates:
-                    plt.annotate(dataPoint[3], (i, eigVal+20))
+#             else:
+#                 currentColour = "blue"
+#                 if plotDates:
+#                     plt.annotate(dataPoint[3], (i, eigVal+20))
             if i == 0:
                 plt.annotate(dataPoint[2], (i, eigVal+20))
             elif i == numDataPoints - 1:

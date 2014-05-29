@@ -10,17 +10,17 @@ from TwitterGraphPlotter import TwitterGraphPlotter
 
 
 if __name__ == '__main__':
-    windowSize = 15000
-    incrementSize = 3000
-    pkl_file = open('pCPickle_all_' + str(windowSize) + '_' + str(incrementSize) + '.pkl', 'rb')
+    windowSize = 5000
+    incrementSize = 500
+    pkl_file = open('pCPickle_us_' + str(windowSize) + '_' + str(incrementSize) + '.pkl', 'rb')
     data1 = pickle.load(pkl_file)
     pprint.pprint(data1)
     pkl_file.close()
 
-#     textFile = open('data_all.txt', 'w')
-#     for (array, eigVal, startDate, endDate) in data1:
-#         textFile.write(str(array) + '\t' + str(eigVal) +'\t' + startDate + '\t' + endDate + '\n')
-#     textFile.close()
+    textFile = open('data_us_' + str(windowSize) + '_' + str(incrementSize), 'w')
+    for (array, eigVal, startDate, endDate) in data1:
+        textFile.write(str(array) + '\t' + str(eigVal) +'\t' + startDate + '\t' + endDate + '\n')
+    textFile.close()
     fig = plt.figure()
     plt.axis([0, len(data1)+5, -1, 500])
     plt.xlabel("Time")

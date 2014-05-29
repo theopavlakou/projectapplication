@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 
 from matplotlib import rc
 import os
+import pickle
 from EventProbabilityCalculator import EventProbabilityCalculator
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
@@ -60,6 +61,7 @@ def getLambdasAndProbabilities():
     return res
 
 if __name__ == '__main__':
+    pickleFileName = "w.pkl"
     lambdasAndProbabilities = getLambdasAndProbabilities()
     l = []
     p = []
@@ -77,6 +79,10 @@ if __name__ == '__main__':
     print(y.shape)
     w = np.linalg.lstsq(l, y)[0]
     print(w)
+    outputPickle = open(pickleFileName, 'wb')
+    pickle.dump(w, outputPickle)
+    outputPickle.close()
+
 
 #     lAxis = np.linspace(0.0,700.0, num=1000)
 #     exponent = np.dot(np.array([np.ones(len(lAxis)), lAxis]).T, w )

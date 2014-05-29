@@ -22,14 +22,14 @@ import pickle
 ####################################################
 ##  The file containing the Tweets as JSONs
 ####################################################
-jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/twitter_data_all'
+jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/tweets_usa_7_hours'
 
 ####################################################
 ##  Initialize
 ####################################################
-sizeOfWindow = 15000
-batchSize = 3000
-pickleFileName = "pCPickle_all_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
+sizeOfWindow = 50000
+batchSize = 1000
+pickleFileName = "pCPickle_us_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
@@ -113,6 +113,8 @@ while not tweetRetriever.eof:
     print(pCWords)
     print("--- Eigenvalue ---")
     print(eigenvalue)
+    print("--- Start Date - End Date ---")
+    print(startDate + " - " + endDate)
 
     toSave.append((pCWords, eigenvalue, startDate, endDate))
     tb = time.time()

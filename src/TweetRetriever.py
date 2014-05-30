@@ -18,6 +18,7 @@ class TweetRetriever:
 		self.decoder = json.JSONDecoder()
 		self.jsonFile.seek(self.currentOffset)
 
+	#TODO: Make it also return tweets that have been popped off
 	def getNextWindow(self):
 		""" Retrieves the next window of Tweets. """
 		if self.eof == 1:

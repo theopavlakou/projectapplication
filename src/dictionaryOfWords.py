@@ -4,7 +4,7 @@ class DictionaryOfWords:
 		self.dict = {}
 
 	def addToDictionary(self, word):
-		""" Add to dictionary with the occurence of the word. """
+		""" Add to dictionary with the occurrence of the word. """
 		if word in self.dict:
 			self.dict[word] += 1
 		else:
@@ -16,7 +16,7 @@ class DictionaryOfWords:
 			self.addToDictionary(word)
 
 	def getSortedListOfTuples(self):
-		""" Returns a sorted list of tuples of the form (keyValue, key). """
+		""" Returns a sorted list of tuples of the form (countForWord, word). """
 		listOfTuples = []
 		for key in self.dict:
 			listOfTuples.append((self.dict[key], key))
@@ -37,9 +37,9 @@ class DictionaryOfWords:
 	def getMostPopularWordsAndOccurrences(self, limit):
 		listOfTuples = self.getSortedListOfTuples()
 		listToReturn = []
-		x = 1
+		x = 0
 		for (value, key) in listOfTuples:
-			if x <= limit:
+			if x < limit:
 				listToReturn.append((key, value))
 				x += 1
 			else:
@@ -48,12 +48,13 @@ class DictionaryOfWords:
 
 	def getMostPopularWordsAndRank(self, limit):
 		listOfTuples = self.getSortedListOfTuples()
-		listToReturn = {}
-		x = 1
-		for (value, key) in listOfTuples:  # @UnusedVariable
-			if x <= limit:
-				listToReturn[key] = x - 1
+		dictToReturn = {}
+		x = 0
+		for (countForWord, word) in listOfTuples:  # @UnusedVariable
+			if x < limit:
+				dictToReturn[word] = x
 				x += 1
 			else:
 				break
-		return listToReturn
+		return dictToReturn
+

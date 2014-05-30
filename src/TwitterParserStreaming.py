@@ -22,14 +22,14 @@ import pickle
 ####################################################
 ##  The file containing the Tweets as JSONs
 ####################################################
-jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/tweets_ny'
+jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_ny'
 
 ####################################################
 ##  Initialize
 ####################################################
 sizeOfWindow = 10000
 batchSize = 1000
-pickleFileName = "pCPickle_ny_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
+pickleFileName = "./Pickles/pCPickle_ny_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
@@ -42,7 +42,7 @@ toSave = []
 i = 0
 t0 = time.time()
 while not tweetRetriever.eof:
-    ta = time.time()
+    tIterationStart = time.time()
     print("--- Loading Tweets ---")
     tweetSet = tweetRetriever.getNextWindow()
     if verbose == 3:
@@ -57,7 +57,7 @@ while not tweetRetriever.eof:
     dictOfWords = DictionaryOfWords()
     for tweet in tweetSet:
         dictOfWords.addFromSet(tweet.listOfWords())
-    listOfWords = dictOfWords.getMostPopularWordsAndOccurrences(3000)
+    wordDict = dictOfWords.getMostPopularWordsAndRank(3000)
     print("--- Finished loading most common words in the Tweets ---")
 
 #     ########################################################
@@ -76,15 +76,17 @@ while not tweetRetriever.eof:
 #         i = i + 1
 #     print("--- Closing file to output index of words to ---")
 #     wordsFile.close()
+
     ########################################################
     ##  Create Sparse Matrix
     ########################################################
-    matrixBuilder = MatrixBuilder(sizeOfWindow, len(listOfWords))
+    matrixBuilder = MatrixBuilder(sizeOfWindow, len(wordDict))
 
     ############################################################################################
     # For each Tweet, find the index of the words that correspond to the words in the Tweet.
     ############################################################################################
     print("--- Populating matrix ---")
+    tPopMatStart = time.time()
     tweetNumber = 0
     startDate = tweetSet[0].date
     endDate = tweetSet[len(tweetSet)-1].date
@@ -93,12 +95,14 @@ while not tweetRetriever.eof:
         tweetWordList = tweet.listOfWords()
         # The first number is the index of the tweet (the row number)
         # Check for each word in the list of unique words, if it is in the Tweet, then print the index of the word
-        for wordNumber in range(len(listOfWords)):
-            if listOfWords[wordNumber][0] in tweetWordList:
-                matrixBuilder.addElement(tweetNumber, wordNumber, 1)
+        for key in wordDict.keys():
+            if key in tweetWordList:
+                matrixBuilder.addElement(tweetNumber, wordDict[key], 1)
         # Next row
         tweetNumber = tweetNumber + 1
+    tPopMatEnd = time.time()
     print("--- Finished populating matrix ---")
+    print("------ That took " + str(tPopMatEnd - tPopMatStart) + " seconds to complete ------")
 
     ############################################################################################
     # With the matrix populated run the algorithm on it
@@ -107,8 +111,12 @@ while not tweetRetriever.eof:
     [sparsePC, eigenvalue] = tPAlgorithm.getSparsePC(cooccurrenceMatrix, 10)
     print("--- Sparse Eigenvector ---")
     print(sparsePC.nonzero()[0])
-    pCWords = [listOfWords[index][0] for index in sparsePC.nonzero()[0]]
 
+    pCWords = []
+    for index in sparsePC.nonzero()[0]:
+        for word, rank in wordDict.iteritems():
+            if rank == index:
+                pCWords.append(word)
 
     print(pCWords)
     print("--- Eigenvalue ---")
@@ -117,8 +125,8 @@ while not tweetRetriever.eof:
     print(startDate + " - " + endDate)
 
     toSave.append((pCWords, eigenvalue, startDate, endDate))
-    tb = time.time()
-    print ("Time for iteration: " + str(tb-ta))
+    tIterationEnd = time.time()
+    print ("Time for iteration: " + str(tIterationEnd - tIterationStart))
 
     # TODO: draw with matplotlib here and keep updating:
     # see: http://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib

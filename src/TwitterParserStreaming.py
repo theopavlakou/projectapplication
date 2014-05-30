@@ -19,6 +19,7 @@ from MatrixBuilder import MatrixBuilder
 from TPowerAlgorithm import TPowerAlgorithm
 import time
 import pickle
+from copy import deepcopy
 ####################################################
 ##  The file containing the Tweets as JSONs
 ####################################################
@@ -48,9 +49,6 @@ while not tweetRetriever.eof:
     tIterationStart = time.time()
     print("--- Loading Tweets ---")
     (tweetSet, oldBatch) = tweetRetriever.getNextWindow()
-    print(tweetSet[0].listOfWords())
-    if oldBatch != []:
-        print(oldBatch[0].listOfWords())
     if verbose == 3:
         print("--- Number of Tweets: " + str(len(tweetSet)) + " ---")
     print("--- Finished loading Tweets ---")
@@ -61,10 +59,27 @@ while not tweetRetriever.eof:
     ########################################################
     print("--- Loading most common words in the Tweets ---")
     tLoadCommonWordsStart = time.time()
-    dictOfWords = DictionaryOfWords()
-    for tweet in tweetSet:
-        dictOfWords.addFromSet(tweet.listOfWords())
-    wordDict = dictOfWords.getMostPopularWordsAndRank(numberOfWords)
+
+    dictOfWordsOld = DictionaryOfWords()
+
+    # This part of the count will be common to both the current and previous window
+    for tweet in tweetSet[0:-len(oldBatch)]:
+        dictOfWordsOld.addFromSet(tweet.listOfWords())
+
+    # Ensure a copy is made, not just a reference and also to the dictionary in it => deepcopy
+    dictOfWordsCurrent = deepcopy(dictOfWordsOld)
+
+    # The old dictionary of words
+    for tweet in oldBatch:
+        dictOfWordsOld.addFromSet(tweet.listOfWords())
+
+    # The current dictionary of words
+    for tweet in tweetSet[-len(oldBatch):]:
+        dictOfWordsCurrent.addFromSet(tweet.listOfWords())
+
+    wordDictOld = dictOfWordsOld.getMostPopularWordsAndRank(numberOfWords)
+    wordDictCurrent = dictOfWordsCurrent.getMostPopularWordsAndRank(numberOfWords)
+
     tLoadCommonWordsEnd = time.time()
     print("------ That took " + str(tLoadCommonWordsEnd - tLoadCommonWordsStart) + " seconds to complete ------")
     print("--- Finished loading most common words in the Tweets ---")
@@ -89,7 +104,7 @@ while not tweetRetriever.eof:
     ########################################################
     ##  Create Sparse Matrix
     ########################################################
-    matrixBuilder = MatrixBuilder(sizeOfWindow, len(wordDict))
+    matrixBuilder = MatrixBuilder(sizeOfWindow, len(wordDictCurrent))
 
     ############################################################################################
     # For each Tweet, find the index of the words that correspond to the words in the Tweet.
@@ -104,9 +119,9 @@ while not tweetRetriever.eof:
         tweetWordList = tweet.listOfWords()
         # The first number is the index of the tweet (the row number)
         # Check for each word in the list of unique words, if it is in the Tweet, then print the index of the word
-        for key in wordDict.keys():
+        for key in wordDictCurrent.keys():
             if key in tweetWordList:
-                matrixBuilder.addElement(tweetNumber, wordDict[key], 1)
+                matrixBuilder.addElement(tweetNumber, wordDictCurrent[key], 1)
         # Next row
         tweetNumber = tweetNumber + 1
     tPopMatEnd = time.time()
@@ -123,7 +138,7 @@ while not tweetRetriever.eof:
 
     pCWords = []
     for index in sparsePC.nonzero()[0]:
-        for word, rank in wordDict.iteritems():
+        for word, rank in wordDictCurrent.iteritems():
             if rank == index:
                 pCWords.append(word)
 

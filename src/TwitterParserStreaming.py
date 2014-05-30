@@ -22,14 +22,14 @@ import pickle
 ####################################################
 ##  The file containing the Tweets as JSONs
 ####################################################
-jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/tweets_usa_7_hours'
+jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/tweets_ny'
 
 ####################################################
 ##  Initialize
 ####################################################
-sizeOfWindow = 50000
+sizeOfWindow = 10000
 batchSize = 1000
-pickleFileName = "pCPickle_us_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
+pickleFileName = "pCPickle_ny_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()

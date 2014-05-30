@@ -29,6 +29,8 @@ jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/
 ####################################################
 sizeOfWindow = 10000
 batchSize = 1000
+numberOfWords = 3000;
+desiredSparsity = 10;
 pickleFileName = "./Pickles/pCPickle_ny_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
@@ -41,10 +43,14 @@ verbose = 3
 toSave = []
 i = 0
 t0 = time.time()
+tweetSetOldDifference = []
 while not tweetRetriever.eof:
     tIterationStart = time.time()
     print("--- Loading Tweets ---")
-    tweetSet = tweetRetriever.getNextWindow()
+    (tweetSet, oldBatch) = tweetRetriever.getNextWindow()
+    print(tweetSet[0].listOfWords())
+    if oldBatch != []:
+        print(oldBatch[0].listOfWords())
     if verbose == 3:
         print("--- Number of Tweets: " + str(len(tweetSet)) + " ---")
     print("--- Finished loading Tweets ---")
@@ -54,10 +60,13 @@ while not tweetRetriever.eof:
     ##  Tweets which will be the columns of the matrix.
     ########################################################
     print("--- Loading most common words in the Tweets ---")
+    tLoadCommonWordsStart = time.time()
     dictOfWords = DictionaryOfWords()
     for tweet in tweetSet:
         dictOfWords.addFromSet(tweet.listOfWords())
-    wordDict = dictOfWords.getMostPopularWordsAndRank(3000)
+    wordDict = dictOfWords.getMostPopularWordsAndRank(numberOfWords)
+    tLoadCommonWordsEnd = time.time()
+    print("------ That took " + str(tLoadCommonWordsEnd - tLoadCommonWordsStart) + " seconds to complete ------")
     print("--- Finished loading most common words in the Tweets ---")
 
 #     ########################################################
@@ -108,7 +117,7 @@ while not tweetRetriever.eof:
     # With the matrix populated run the algorithm on it
     ############################################################################################
     cooccurrenceMatrix = matrixBuilder.getCooccurrenceMatrix()
-    [sparsePC, eigenvalue] = tPAlgorithm.getSparsePC(cooccurrenceMatrix, 10)
+    [sparsePC, eigenvalue] = tPAlgorithm.getSparsePC(cooccurrenceMatrix, desiredSparsity)
     print("--- Sparse Eigenvector ---")
     print(sparsePC.nonzero()[0])
 

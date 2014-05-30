@@ -20,10 +20,12 @@ class TweetRetriever:
 
 	#TODO: Make it also return tweets that have been popped off
 	def getNextWindow(self):
-		""" Retrieves the next window of Tweets. """
+		""" Retrieves the next window of Tweets and gives the previous list of Tweets also.
+			Output:		(self.currentTweets, oldBatch) """
 		if self.eof == 1:
 			return -1
 		# If empty then we have not yet got any Tweets
+		oldBatch = []
 		toLoad = 0
 		if len(self.currentTweets) == 0:
 			toLoad = self.windowSize
@@ -53,7 +55,7 @@ class TweetRetriever:
 				tweet = Tweet(jsonObject["text"], jsonObject["created_at"])
 				# If we have more than the window size then pop the oldest off
 				if len(self.currentTweets) == self.windowSize:
-					prevTweet = self.currentTweets.pop(0)  # @UnusedVariable
+					oldBatch.append(self.currentTweets.pop(0))
 
 				self.currentTweets.append(tweet)
 				loaded += 1
@@ -65,4 +67,4 @@ class TweetRetriever:
 			except:
 				numberConsecutivePasses += 1
 				pass
-		return self.currentTweets
+		return (self.currentTweets, oldBatch)

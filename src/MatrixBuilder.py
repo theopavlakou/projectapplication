@@ -26,6 +26,9 @@ class MatrixBuilder:
         self.cooccurrenceMatrix = np.zeros((self.noCols, self.noCols))
         self.cooccurrenceMatrixInitialised = False
 
+    def resetMatrix(self):
+        self.matrix = lil_matrix((self.noRows, self.noCols), dtype = float)
+
 
     def addElement(self, row, col, value):
         """

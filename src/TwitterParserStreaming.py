@@ -108,6 +108,7 @@ while not tweetRetriever.eof:
     ########################################################
     ##  Create Sparse Matrix
     ########################################################
+    matrixBuilder.resetMatrix()
 
     ############################################################################################
     # For each Tweet, find the index of the words that correspond to the words in the Tweet.

@@ -20,6 +20,7 @@ from TPowerAlgorithm import TPowerAlgorithm
 import time
 import pickle
 from copy import deepcopy
+from DictionaryComparator import DictionaryComparator
 ####################################################
 ##  The file containing the Tweets as JSONs
 ####################################################
@@ -79,6 +80,7 @@ while not tweetRetriever.eof:
 
     wordDictOld = dictOfWordsOld.getMostPopularWordsAndRank(numberOfWords)
     wordDictCurrent = dictOfWordsCurrent.getMostPopularWordsAndRank(numberOfWords)
+    dictionaryComparator = DictionaryComparator(wordDictOld, wordDictCurrent)
 
     tLoadCommonWordsEnd = time.time()
     print("------ That took " + str(tLoadCommonWordsEnd - tLoadCommonWordsStart) + " seconds to complete ------")

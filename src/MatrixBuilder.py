@@ -3,6 +3,7 @@ Created on 21 May 2014
 
 @author: theopavlakou
 '''
+import numpy as np
 from numpy import dot
 from numpy import array
 from scipy import *
@@ -21,6 +22,11 @@ class MatrixBuilder:
         '''
         self.noRows = numberOfRows
         self.noCols = numberOfCols
+        self.matrix = lil_matrix((self.noRows, self.noCols), dtype = float)
+        self.cooccurrenceMatrix = np.zeros((self.noCols, self.noCols))
+        self.cooccurrenceMatrixInitialised = False
+
+    def resetMatrix(self):
         self.matrix = lil_matrix((self.noRows, self.noCols), dtype = float)
 
 
@@ -44,7 +50,8 @@ class MatrixBuilder:
 
     def getCooccurrenceMatrix(self):
         """ Returns the hollow cooccurrence matrix given by S'*S - diag(S'*S)."""
-        cooccurrenceMatrix = dot(self.matrix.transpose(), self.matrix).todense()
-        for i in range(self.noCols):
-            cooccurrenceMatrix[i, i] = 0
-        return cooccurrenceMatrix
+        if self.cooccurrenceMatrixInitialised == False:
+            self.cooccurrenceMatrix = dot(self.matrix.transpose(), self.matrix).todense()
+            for i in range(self.noCols):
+                self.cooccurrenceMatrix[i, i] = 0
+        return self.cooccurrenceMatrix

@@ -38,6 +38,8 @@ tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
 verbose = 3
+matrixBuilder = MatrixBuilder(sizeOfWindow, numberOfWords)
+
 
 ####################################################
 ##  Load the Tweets from the file
@@ -106,7 +108,7 @@ while not tweetRetriever.eof:
     ########################################################
     ##  Create Sparse Matrix
     ########################################################
-    matrixBuilder = MatrixBuilder(sizeOfWindow, len(wordDictCurrent))
+    matrixBuilder.resetMatrix()
 
     ############################################################################################
     # For each Tweet, find the index of the words that correspond to the words in the Tweet.

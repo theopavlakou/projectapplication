@@ -45,7 +45,6 @@ verbose = 3
 toSave = []
 i = 0
 t0 = time.time()
-tweetSetOldDifference = []
 while not tweetRetriever.eof:
     tIterationStart = time.time()
     print("--- Loading Tweets ---")

@@ -29,7 +29,7 @@ jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/
 ####################################################
 ##  Initialize
 ####################################################
-sizeOfWindow = 10000
+sizeOfWindow = 5000
 batchSize = 1000
 numberOfWords = 3000;
 desiredSparsity = 10;
@@ -47,13 +47,23 @@ matrixBuilder = MatrixBuilder(sizeOfWindow, numberOfWords)
 toSave = []
 i = 0
 t0 = time.time()
-while not tweetRetriever.eof:
+i = -1
+tLoadTweets = 0
+tLoadCommonWords = 0
+tPopMat = 0
+tBuildCooccurenceMatrix = 0
+tCalculateSPCA = 0
+while not tweetRetriever.eof and i < 10:
+    i+=1
     tIterationStart = time.time()
     print("--- Loading Tweets ---")
+    tLoadTweetsStart = time.time()
     (tweetSet, oldBatch) = tweetRetriever.getNextWindow()
     if verbose == 3:
         print("--- Number of Tweets: " + str(len(tweetSet)) + " ---")
     print("--- Finished loading Tweets ---")
+    tLoadTweetsEnd = time.time()
+    tLoadTweets += (tLoadTweetsEnd - tLoadTweetsStart)/10
 
     ########################################################
     ##  Make a list of the 3000 most common words in the
@@ -84,9 +94,10 @@ while not tweetRetriever.eof:
     dictionaryComparator = DictionaryComparator(wordDictOld, wordDictCurrent)
 
     tLoadCommonWordsEnd = time.time()
+    tLoadCommonWords += (tLoadCommonWordsEnd - tLoadCommonWordsStart)/10
+
     print("------ That took " + str(tLoadCommonWordsEnd - tLoadCommonWordsStart) + " seconds to complete ------")
     print("--- Finished loading most common words in the Tweets ---")
-
 #     ########################################################
 #     ##  Open the file to output the words with their index.
 #     ########################################################
@@ -128,14 +139,22 @@ while not tweetRetriever.eof:
         # Next row
         tweetNumber = tweetNumber + 1
     tPopMatEnd = time.time()
+    tPopMat += (tPopMatEnd - tPopMatStart)/10
     print("--- Finished populating matrix ---")
     print("------ That took " + str(tPopMatEnd - tPopMatStart) + " seconds to complete ------")
 
     ############################################################################################
     # With the matrix populated run the algorithm on it
     ############################################################################################
+    tBuildCooccurenceMatrixStart = time.time()
     cooccurrenceMatrix = matrixBuilder.getCooccurrenceMatrix()
+    tBuildCooccurenceMatrixEnd = time.time()
+    tBuildCooccurenceMatrix += (tBuildCooccurenceMatrixEnd - tBuildCooccurenceMatrixStart)/10
+
+    tCalculateSPCAStart = time.time()
     [sparsePC, eigenvalue] = tPAlgorithm.getSparsePC(cooccurrenceMatrix, desiredSparsity)
+    tCalculateSPCAEnd = time.time()
+    tCalculateSPCA += (tCalculateSPCAEnd - tCalculateSPCAStart)/10
     print("--- Sparse Eigenvector ---")
     print(sparsePC.nonzero()[0])
 
@@ -176,6 +195,12 @@ while not tweetRetriever.eof:
 # plt.show()
 t1 = time.time()
 totalTime = t1 - t0
+totalTime = tLoadCommonWords + tLoadTweets + tPopMat + tBuildCooccurenceMatrix + tCalculateSPCA
+print("Average proportion of time loading Tweets = " + str(tLoadTweets/totalTime))
+print("Average proportion of time loading common words = " + str(tLoadCommonWords/totalTime))
+print("Average proportion of time populating matrix = " + str(tPopMat/totalTime))
+print("Average proportion of time building cooccurrence matrix = " + str(tBuildCooccurenceMatrix/totalTime))
+print("Average proportion of time calculating Sparse PCA = " + str(tCalculateSPCA/totalTime))
 print("Average time per iteration = " + str(totalTime/len(toSave)))
 outputPickle = open(pickleFileName, 'wb')
 pickle.dump(toSave, outputPickle)

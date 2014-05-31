@@ -46,7 +46,7 @@ matrixBuilder = MatrixBuilder(sizeOfWindow, numberOfWords)
 ####################################################
 toSave = []
 i = 0
-#T
+
 t0 = time.time()
 while not tweetRetriever.eof:
     tIterationStart = time.time()

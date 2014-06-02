@@ -12,7 +12,6 @@ Created on 21 May 2014
 # which means that Tweet 1 contains words {5, 7, 8}, Tweet 2 contains no words in
 # the bag of words and Tweet 3 contains word {6}.
 ############################################################################################################################
-
 from DictionaryOfWords import DictionaryOfWords
 from TweetRetriever import TweetRetriever
 from MatrixBuilder import MatrixBuilder
@@ -21,6 +20,7 @@ import time
 import pickle
 from copy import deepcopy
 from DictionaryComparator import DictionaryComparator
+
 ####################################################
 ##  The file containing the Tweets as JSONs
 ####################################################
@@ -29,7 +29,7 @@ jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/
 ####################################################
 ##  Initialize
 ####################################################
-sizeOfWindow = 5000
+sizeOfWindow = 10000
 batchSize = 1000
 numberOfWords = 3000;
 desiredSparsity = 10;
@@ -39,7 +39,6 @@ tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
 verbose = 3
 matrixBuilder = MatrixBuilder(sizeOfWindow, numberOfWords)
-
 
 ####################################################
 ##  Load the Tweets from the file
@@ -53,7 +52,8 @@ tLoadCommonWords = 0
 tPopMat = 0
 tBuildCooccurenceMatrix = 0
 tCalculateSPCA = 0
-while not tweetRetriever.eof and i < 10:
+
+while not tweetRetriever.eof:
     i+=1
     tIterationStart = time.time()
     print("--- Loading Tweets ---")
@@ -132,10 +132,11 @@ while not tweetRetriever.eof and i < 10:
         # Get the list of words in the tweet
         tweetWordList = tweet.listOfWords()
         # The first number is the index of the tweet (the row number)
-        # Check for each word in the list of unique words, if it is in the Tweet, then print the index of the word
-        for key in wordDictCurrent.keys():
-            if key in tweetWordList:
-                matrixBuilder.addElement(tweetNumber, wordDictCurrent[key], 1)
+        currentBagOfWords = wordDictCurrent.keys()
+        for word in tweetWordList:
+            if word in currentBagOfWords:
+                matrixBuilder.addElement(tweetNumber, wordDictCurrent[word], 1)
+
         # Next row
         tweetNumber = tweetNumber + 1
     tPopMatEnd = time.time()

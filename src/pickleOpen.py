@@ -22,7 +22,6 @@ if __name__ == '__main__':
         textFile.write(str(array) + '\t' + str(eigVal) +'\t' + startDate + '\t' + endDate + '\n')
     textFile.close()
     fig = plt.figure()
-    plt.axis([0, len(data1)+5, -1, 500])
     plt.xlabel("Time")
     plt.ylabel("Information")
     plt.ion()

@@ -20,13 +20,13 @@ from copy import deepcopy
 from DictionaryComparator import DictionaryComparator
 
 ####################################################
-##  The file containing the Tweets as JSONs.
-##  CHANGE this to the file on your system.
+#  The file containing the Tweets as JSONs.
+#  CHANGE this to the file on your system.
 ####################################################
 jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_ny'
 
 ####################################################
-##  Initialize the constants
+#  Initialize the constants
 ####################################################
 # The number of Tweets that are to be considered per calculation
 sizeOfWindow = 10000
@@ -42,7 +42,7 @@ pickleFileName = "./Pickles/pCPickle_ny_" + str(sizeOfWindow) + "_" + str(batchS
 verbose = 3
 
 ####################################################
-##  Initialize the objects
+#  Initialize the objects
 ####################################################
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
@@ -50,13 +50,14 @@ tPAlgorithm = TPowerAlgorithm()
 matrixBuilder = MatrixBuilder(sizeOfWindow, numberOfWords)
 
 ####################################################
-##  Load the Tweets from the file
+#  Load the Tweets from the file
 ####################################################
 toSave = []
 count = 0
+
 ####################################################
-##  Initialize times associated with various parts
-##  of the code.
+#  Initialize times associated with various parts
+#  of the code.
 ####################################################
 tLoadTweets = 0
 tLoadCommonWords = 0
@@ -78,8 +79,9 @@ while not tweetRetriever.eof:
     tLoadTweets += (tLoadTweetsEnd - tLoadTweetsStart)/10
 
     ########################################################
-    ##  Make a list of the 3000 most common words in the
-    ##  Tweets which will be the columns of the matrix.
+    #  Make a list of the 3000 most common words in the
+    #  Tweets which will be the columns of the matrix.
+    #  The Bag-Of-Words.
     ########################################################
     print("--- Loading most common words in the Tweets ---")
     tLoadCommonWordsStart = time.time()
@@ -111,7 +113,7 @@ while not tweetRetriever.eof:
     print("------ That took " + str(tLoadCommonWordsEnd - tLoadCommonWordsStart) + " seconds to complete ------")
     print("--- Finished loading most common words in the Tweets ---")
 #     ########################################################
-#     ##  Open the file to output the words with their index.
+#     #  Open the file to output the words with their index.
 #     ########################################################
 #     print("--- Opening file to output index of words to ---")
 #     wordsFile = open("cwi", "w")
@@ -128,27 +130,29 @@ while not tweetRetriever.eof:
 #     wordsFile.close()
 
     ########################################################
-    ##  Create Sparse Matrix
+    #  Create Sparse Matrix
     ########################################################
     matrixBuilder.resetMatrix()
 
     ############################################################################################
-    # For each Tweet, find the index of the words that correspond to the words in the Tweet.
+    #  Populate the S matrix. This is the matrix with rows the Tweets and columns
+    #  the Bag-Of-Words.
     ############################################################################################
     print("--- Populating matrix ---")
     tPopMatStart = time.time()
     tweetNumber = 0
+    # Get the start and end date of the current tweet set
     startDate = tweetSet[0].date
     endDate = tweetSet[len(tweetSet)-1].date
+    # Get the current Bag-Of-Words
+    currentBagOfWords = wordDictCurrent.keys()
+
     for tweet in tweetSet:
         # Get the list of words in the tweet
         tweetWordList = tweet.listOfWords()
-        # The first number is the index of the tweet (the row number)
-        currentBagOfWords = wordDictCurrent.keys()
         for word in tweetWordList:
             if word in currentBagOfWords:
                 matrixBuilder.addElement(tweetNumber, wordDictCurrent[word], 1)
-
         # Next row
         tweetNumber = tweetNumber + 1
     tPopMatEnd = time.time()
@@ -157,13 +161,16 @@ while not tweetRetriever.eof:
     print("------ That took " + str(tPopMatEnd - tPopMatStart) + " seconds to complete ------")
 
     ############################################################################################
-    # With the matrix populated run the algorithm on it
+    # Now calculate the Co-occurrence matrix.
     ############################################################################################
     tBuildCooccurenceMatrixStart = time.time()
     cooccurrenceMatrix = matrixBuilder.getCooccurrenceMatrix()
     tBuildCooccurenceMatrixEnd = time.time()
     tBuildCooccurenceMatrix += (tBuildCooccurenceMatrixEnd - tBuildCooccurenceMatrixStart)/10
 
+    ############################################################################################
+    # Run the Sparse PCA algorithm on the Co-occurrence matrix.
+    ############################################################################################
     tCalculateSPCAStart = time.time()
     [sparsePC, eigenvalue] = tPAlgorithm.getSparsePC(cooccurrenceMatrix, desiredSparsity)
     tCalculateSPCAEnd = time.time()
@@ -171,6 +178,9 @@ while not tweetRetriever.eof:
     print("--- Sparse Eigenvector ---")
     print(sparsePC.nonzero()[0])
 
+    ###########################################################################
+    # Save all the words corresponding to the indices of the supports returned.
+    ###########################################################################
     pCWords = []
     for index in sparsePC.nonzero()[0]:
         for word, rank in wordDictCurrent.iteritems():
@@ -183,6 +193,9 @@ while not tweetRetriever.eof:
     print("--- Start Date - End Date ---")
     print(startDate + " - " + endDate)
 
+    #################################################################
+    #  Append the data to be saved in the pickle file.
+    #################################################################
     toSave.append((pCWords, eigenvalue, startDate, endDate))
     tIterationEnd = time.time()
     print ("Time for iteration: " + str(tIterationEnd - tIterationStart))
@@ -209,6 +222,11 @@ while not tweetRetriever.eof:
 t1 = time.time()
 totalTime = t1 - t0
 totalTime = tLoadCommonWords + tLoadTweets + tPopMat + tBuildCooccurenceMatrix + tCalculateSPCA
+
+###########################################################
+#  Print final statistics for time spent in each portion
+#  of the code.
+###########################################################
 print("Average proportion of time loading Tweets = " + str(tLoadTweets/totalTime))
 print("Average proportion of time loading common words = " + str(tLoadCommonWords/totalTime))
 print("Average proportion of time populating matrix = " + str(tPopMat/totalTime))

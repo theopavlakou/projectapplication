@@ -6,6 +6,7 @@ Created on 23 May 2014
 from twython import Twython
 from twython import TwythonStreamer
 
+# TODO: Not actually working. Should fix.
 class TwitterStreamer(TwythonStreamer):
     '''
     classdocs

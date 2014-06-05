@@ -40,7 +40,8 @@ class TPowerAlgorithm:
 			x:      The first k-sparse PC.
 			f:      The eigenvalue associated with that PC.
 		"""
-		# Tolerance related to the difference in eigenvalues
+		# Tolerance related to the difference in eigenvalues.
+		# These could be made inputs.
 		tolerance = 0.0000001
 		maxIterations = 50
 		x0 = ones(A.shape[0])

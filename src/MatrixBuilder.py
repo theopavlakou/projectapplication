@@ -49,7 +49,7 @@ class MatrixBuilder:
             return -1
 
     def getCooccurrenceMatrix(self):
-        """ Returns the hollow cooccurrence matrix given by S'*S - diag(S'*S)."""
+        """ Returns the hollow co-occurrence matrix given by S'*S - diag(S'*S)."""
         if self.cooccurrenceMatrixInitialised == False:
             self.cooccurrenceMatrix = dot(self.matrix.transpose(), self.matrix).todense()
             for i in range(self.noCols):

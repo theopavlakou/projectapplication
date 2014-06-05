@@ -4,13 +4,11 @@ Created on 21 May 2014
 @author: theopavlakou
 '''
 ###########################################################################################################################
-## A parser for the twitter data file with all the JSON data. Reads in the JSON data and prints out a matrix of the form:
-# This prints out to the file in the following format:
-# 1, 5, 7, 8
-# 2,
-# 3, 6
-# which means that Tweet 1 contains words {5, 7, 8}, Tweet 2 contains no words in
-# the bag of words and Tweet 3 contains word {6}.
+## A parser for the twitter data file with all the JSON data. Reads in the JSON
+## data, each line representing a Tweet, in a streaming manner and finds words
+## that most probably best describe an event that is taking place.
+## Each window alongside the set of words, the score and the dates are stored
+## in a pickle file.
 ############################################################################################################################
 from DictionaryOfWords import DictionaryOfWords
 from TweetRetriever import TweetRetriever
@@ -22,39 +20,53 @@ from copy import deepcopy
 from DictionaryComparator import DictionaryComparator
 
 ####################################################
-##  The file containing the Tweets as JSONs
+##  The file containing the Tweets as JSONs.
+##  CHANGE this to the file on your system.
 ####################################################
 jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_ny'
 
 ####################################################
-##  Initialize
+##  Initialize the constants
 ####################################################
+# The number of Tweets that are to be considered per calculation
 sizeOfWindow = 10000
+# The shift size (measured as the number of Tweets) of the window
 batchSize = 1000
-numberOfWords = 3000;
-desiredSparsity = 10;
+# The number of words in the Bag-Of-Words
+numberOfWords = 3000
+# The number of words per window
+desiredSparsity = 10
+# The output pickle file name. CHANGE to the desired location.
 pickleFileName = "./Pickles/pCPickle_ny_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
+# Controls the message output. A higher value means that more will be displayed.
+verbose = 3
+
+####################################################
+##  Initialize the objects
+####################################################
 tweetRetriever = TweetRetriever(jsonFileName, sizeOfWindow, batchSize)
 tweetRetriever.initialise()
 tPAlgorithm = TPowerAlgorithm()
-verbose = 3
 matrixBuilder = MatrixBuilder(sizeOfWindow, numberOfWords)
 
 ####################################################
 ##  Load the Tweets from the file
 ####################################################
 toSave = []
-i = 0
-t0 = time.time()
-i = -1
+count = 0
+####################################################
+##  Initialize times associated with various parts
+##  of the code.
+####################################################
 tLoadTweets = 0
 tLoadCommonWords = 0
 tPopMat = 0
 tBuildCooccurenceMatrix = 0
 tCalculateSPCA = 0
 
+t0 = time.time()
 while not tweetRetriever.eof:
-    i+=1
+    count+=1
     tIterationStart = time.time()
     print("--- Loading Tweets ---")
     tLoadTweetsStart = time.time()

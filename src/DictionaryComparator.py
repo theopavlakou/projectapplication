@@ -44,6 +44,17 @@ class DictionaryComparator:
             indexChanges[self.dictOld[commonWord]] = self.dictCurrent[commonWord]
         return indexChanges
 
+    def getIndexChangesFromCurrentToOld(self):
+        """ Output:
+                A dictionary with key the current index/rank of a word in the common
+                words and value the old index/rank.
+        """
+        commonWords = self.getCommonWords()
+        indexChanges = {}
+        for commonWord in commonWords:
+            indexChanges[self.dictCurrent[commonWord]] = self.dictOld[commonWord]
+        return indexChanges
+
     def getIndexOfWordsNotInCurrent(self):
         """ Output:
                 A set of indices/ranks of words that are in the old dictionary

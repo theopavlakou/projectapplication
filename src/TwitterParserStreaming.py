@@ -87,8 +87,9 @@ pickleFileName = "./Pickles/pCPickle_" + str(sizeOfWindow) + "_" + str(batchSize
 verbose = 1
 # Controls whether the words of the pcs should be printed.
 # If the eigenvalue is above this value, they will be.
-threshold = 130
-
+eigenvalueThreshold = 130
+dotProductThreshold = 0.85
+smallPCOld = {}
 ####################################################
 #  Initialize the objects
 ####################################################
@@ -157,6 +158,7 @@ while not tweetRetriever.eof:
     wordDictOld = dictOfWordsOld.getMostPopularWordsAndRank(numberOfWords)
     wordDictCurrent = dictOfWordsCurrent.getMostPopularWordsAndRank(numberOfWords)
     dictionaryComparator = DictionaryComparator(wordDictOld, wordDictCurrent)
+    indexChanges = dictionaryComparator.getIndexChangesFromCurrentToOld()
 
     tLoadCommonWordsEnd = time.time()
     tLoadCommonWords += (tLoadCommonWordsEnd - tLoadCommonWordsStart)/10
@@ -237,11 +239,30 @@ while not tweetRetriever.eof:
     # Save all the words corresponding to the indices of the supports returned.
     ###########################################################################
     pCWords = []
+    smallPC = {}
     for index in sparsePC.nonzero()[0]:
+        smallPC[index] = sparsePC[index].todense()[0,0]
         for word, rank in wordDictCurrent.iteritems():
             if rank == index:
                 pCWords.append(word)
-    if verbose > 1 or eigenvalue > threshold:
+    if verbose > 3:
+        print("--- Printing small PCs --- ")
+        print(smallPC)
+        print(smallPCOld)
+    dotProductOldCurrent = 0
+    if count > 1:
+        if verbose > 3:
+            print("--- Printing index changes ---")
+            print(indexChanges)
+        for index in smallPC.keys():
+            if indexChanges.has_key(index):
+                if smallPCOld.has_key(indexChanges[index]):
+                    dotProductOldCurrent += smallPC[index]*smallPCOld[indexChanges[index]]
+
+    print("--- Printing dot product ---")
+    print(dotProductOldCurrent)
+    smallPCOld = smallPC
+    if verbose > 1 or (eigenvalue > eigenvalueThreshold and dotProductOldCurrent < dotProductThreshold):
         print(pCWords)
         print("--- Eigenvalue ---")
         print(eigenvalue)
@@ -260,7 +281,14 @@ while not tweetRetriever.eof:
     # Graph plotting stuff
     ##############################################
     if graphPlottingOn:
-        plt.scatter(count,eigenvalue, c="blue")
+        if eigenvalue > eigenvalueThreshold:
+            if dotProductOldCurrent < dotProductThreshold:
+                plt.scatter(count,eigenvalue, c="red")
+            else:
+                plt.scatter(count,eigenvalue, c="yellow")
+        else:
+            plt.scatter(count,eigenvalue, c="blue")
+
         plt.draw()
         time.sleep(0.005)
 
@@ -284,7 +312,6 @@ if verbose > 1:
 outputPickle = open(pickleFileName, 'wb')
 pickle.dump(toSave, outputPickle)
 outputPickle.close()
-if verbose > 1:
-    print("--- End ---")
+print("--- End ---")
 
 

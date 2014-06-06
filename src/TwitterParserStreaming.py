@@ -21,24 +21,22 @@ from DictionaryComparator import DictionaryComparator
 import sys
 
 commandLineArguments = sys.argv
-# The first argument is always the name of the script. In this case
-# TwitterParserStreaming.py
 
 if len(commandLineArguments) < 5:
     print("You need input 4 arguments:")
     print("JSON_file_name size_of_window batch_size desired_sparsity")
     sys.exit()
+
 ####################################################
-#  The file containing the Tweets as JSONs.
-#  CHANGE this to the file on your system.
+#  Initialize the constants
 ####################################################
+# The first argument is always the name of the script. In this case
+# TwitterParserStreaming.py
 if commandLineArguments[1] == "":
     jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_ny'
 else:
     jsonFileName = commandLineArguments[1]
-####################################################
-#  Initialize the constants
-####################################################
+
 # The number of Tweets that are to be considered per calculation
 try:
     sizeOfWindow = int(commandLineArguments[2])
@@ -68,8 +66,9 @@ except ValueError as ve:
     print("------ Setting desired sparsity to 10. ------")
     desiredSparsity = 10
 
+# TODO: Get rid of ./Pickles as this isn't in the repository.
 # The output pickle file name. CHANGE to the desired location.
-pickleFileName = "./Pickles/pCPickle_ny_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
+pickleFileName = "./Pickles/pCPickle_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 # Controls the message output. A higher value means that more will be displayed.
 verbose = 3
 

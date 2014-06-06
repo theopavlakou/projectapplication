@@ -18,24 +18,56 @@ import time
 import pickle
 from copy import deepcopy
 from DictionaryComparator import DictionaryComparator
+import sys
 
+commandLineArguments = sys.argv
+# The first argument is always the name of the script. In this case
+# TwitterParserStreaming.py
+
+if len(commandLineArguments) < 5:
+    print("You need input 4 arguments:")
+    print("JSON_file_name size_of_window batch_size desired_sparsity")
+    sys.exit()
 ####################################################
 #  The file containing the Tweets as JSONs.
 #  CHANGE this to the file on your system.
 ####################################################
-jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_ny'
-
+if commandLineArguments[1] == "":
+    jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_ny'
+else:
+    jsonFileName = commandLineArguments[1]
 ####################################################
 #  Initialize the constants
 ####################################################
 # The number of Tweets that are to be considered per calculation
-sizeOfWindow = 10000
+try:
+    sizeOfWindow = int(commandLineArguments[2])
+except ValueError as ve:
+    print("------ " + str(ve) + " ------ ")
+    print("------ Could not convert " + commandLineArguments[2] + " to an integer. ------")
+    print("------ Setting size of window to 10000. ------")
+    sizeOfWindow = 10000
+
 # The shift size (measured as the number of Tweets) of the window
-batchSize = 1000
+try:
+    batchSize = int(commandLineArguments[3])
+except ValueError as ve:
+    print("------ " + str(ve) + " ------ ")
+    print("------ Could not convert " + commandLineArguments[3] + " to an integer. ------")
+    print("------ Setting batch size to 1000. ------")
+    batchSize = 1000
+
 # The number of words in the Bag-Of-Words
 numberOfWords = 3000
 # The number of words per window
-desiredSparsity = 10
+try:
+    desiredSparsity = int(commandLineArguments[4])
+except ValueError as ve:
+    print("------ " + str(ve) + " ------ ")
+    print("------ Could not convert " + commandLineArguments[4] + " to an integer. ------")
+    print("------ Setting desired sparsity to 10. ------")
+    desiredSparsity = 10
+
 # The output pickle file name. CHANGE to the desired location.
 pickleFileName = "./Pickles/pCPickle_ny_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 # Controls the message output. A higher value means that more will be displayed.
@@ -116,7 +148,7 @@ while not tweetRetriever.eof:
 #     #  Open the file to output the words with their index.
 #     ########################################################
 #     print("--- Opening file to output index of words to ---")
-#     wordsFile = open("cwi", "w")
+#     wordsFile = open("Data/cwi", "w")
 #     # Matlab starts indexing from 1
 #     i = 1
 #     for (word, occurrence) in listOfWords:

@@ -34,6 +34,7 @@ class TwitterGraphPlotter(object):
         Plots the graph of all the data points it possesses.
         Plots points that signify events in a different colour.
         '''
+        #TODO: Really bad coding here
         pkl_file = open("w.pkl", 'rb')
         w = pickle.load(pkl_file)
         pkl_file.close()

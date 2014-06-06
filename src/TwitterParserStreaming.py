@@ -19,6 +19,7 @@ import pickle
 from copy import deepcopy
 from DictionaryComparator import DictionaryComparator
 import sys
+import matplotlib.pyplot as plt
 
 commandLineArguments = sys.argv
 
@@ -28,12 +29,25 @@ if len(commandLineArguments) < 5:
     sys.exit()
 
 ####################################################
+#  Graph drawing
+####################################################
+graphPlottingOn = True
+if graphPlottingOn:
+    fig = plt.figure()
+    # If the limit of x and y is known un-comment and change
+    # plt.ylim([0, 300])
+    # plt.xlim([0, 130])
+    plt.show(block=False)
+    plt.xlabel("Window number")
+    plt.ylabel("Eigenvalue")
+    plt.title("Eigenvalue vs window number")
+####################################################
 #  Initialize the constants
 ####################################################
 # The first argument is always the name of the script. In this case
 # TwitterParserStreaming.py
 if commandLineArguments[1] == "":
-    jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_ny'
+    jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_London_22Sep12_03Oct12'
 else:
     jsonFileName = commandLineArguments[1]
 
@@ -231,25 +245,16 @@ while not tweetRetriever.eof:
     tIterationEnd = time.time()
     print ("Time for iteration: " + str(tIterationEnd - tIterationStart))
 
-    # TODO: draw with matplotlib here and keep updating:
-    # see: http://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
-    # see: http://matplotlib.org/users/text_intro.html
-    # see: http://stackoverflow.com/questions/16183462/saving-images-in-python-at-a-very-high-quality
-    # see: http://www.ucs.cam.ac.uk/docs/course-notes/unix-courses/pythontopics/graphs.pdf
+    ##############################################
+    # Graph plotting stuff
+    ##############################################
+    if graphPlottingOn:
+        plt.scatter(count,eigenvalue, c="blue")
+        plt.draw()
+        time.sleep(0.005)
 
-#     # TODO: Graph plotting stuff
-#     x.append(i)
-#     y.append(eigenvalue)
-#     if eigenvalue >150:
-#         plt.arrow(i, eigenvalue, 1, 4, width=0.005, head_width=0.05, head_starts_at_zero=False)
-#         plt.annotate("this is 100", (i, eigenvalue+4))
-#         plt.scatter(i,eigenvalue, c="red")
-#     else:
-#         plt.scatter(i,eigenvalue, c="blue")
-#     i = i + 1
-#     plt.draw()
-#     time.sleep(0.005)
-# plt.show()
+if graphPlottingOn:
+    plt.show(block=True)
 t1 = time.time()
 totalTime = t1 - t0
 totalTime = tLoadCommonWords + tLoadTweets + tPopMat + tBuildCooccurenceMatrix + tCalculateSPCA

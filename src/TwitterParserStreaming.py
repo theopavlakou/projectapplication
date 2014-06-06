@@ -85,9 +85,14 @@ except ValueError as ve:
 pickleFileName = "./Pickles/pCPickle_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 # Controls the message output. A higher value means that more will be displayed.
 verbose = 1
-# Controls whether the words of the pcs should be printed.
-# If the eigenvalue is above this value, they will be.
+#####################################################
+# Initialise thresholds.
+# These control whether the words of the pcs should be
+# printed.
+#####################################################
 eigenvalueThreshold = 130
+# This should be between 0 and 1 and gives the
+# similarity of two principal components.
 dotProductThreshold = 0.85
 smallPCOld = {}
 ####################################################
@@ -249,6 +254,10 @@ while not tweetRetriever.eof:
         print("--- Printing small PCs --- ")
         print(smallPC)
         print(smallPCOld)
+
+    ###########################################################################
+    # Get the dot product between the old principal component and the current.
+    ###########################################################################
     dotProductOldCurrent = 0
     if count > 1:
         if verbose > 3:
@@ -259,8 +268,10 @@ while not tweetRetriever.eof:
                 if smallPCOld.has_key(indexChanges[index]):
                     dotProductOldCurrent += smallPC[index]*smallPCOld[indexChanges[index]]
 
-    print("--- Printing dot product ---")
-    print(dotProductOldCurrent)
+    if verbose > 3:
+        print("--- Printing dot product ---")
+        print(dotProductOldCurrent)
+
     smallPCOld = smallPC
     if verbose > 1 or (eigenvalue > eigenvalueThreshold and dotProductOldCurrent < dotProductThreshold):
         print(pCWords)

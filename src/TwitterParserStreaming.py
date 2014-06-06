@@ -84,7 +84,10 @@ except ValueError as ve:
 # The output pickle file name. CHANGE to the desired location.
 pickleFileName = "./Pickles/pCPickle_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 # Controls the message output. A higher value means that more will be displayed.
-verbose = 3
+verbose = 1
+# Controls whether the words of the pcs should be printed.
+# If the eigenvalue is above this value, they will be.
+threshold = 130
 
 ####################################################
 #  Initialize the objects
@@ -114,12 +117,14 @@ t0 = time.time()
 while not tweetRetriever.eof:
     count+=1
     tIterationStart = time.time()
-    print("--- Loading Tweets ---")
+    if verbose > 1:
+        print("--- Loading Tweets ---")
     tLoadTweetsStart = time.time()
     (tweetSet, oldBatch) = tweetRetriever.getNextWindow()
     if verbose == 3:
         print("--- Number of Tweets: " + str(len(tweetSet)) + " ---")
-    print("--- Finished loading Tweets ---")
+    if verbose > 1:
+        print("--- Finished loading Tweets ---")
     tLoadTweetsEnd = time.time()
     tLoadTweets += (tLoadTweetsEnd - tLoadTweetsStart)/10
 
@@ -128,7 +133,8 @@ while not tweetRetriever.eof:
     #  Tweets which will be the columns of the matrix.
     #  The Bag-Of-Words.
     ########################################################
-    print("--- Loading most common words in the Tweets ---")
+    if verbose > 1:
+        print("--- Loading most common words in the Tweets ---")
     tLoadCommonWordsStart = time.time()
 
     dictOfWordsOld = DictionaryOfWords()
@@ -155,8 +161,9 @@ while not tweetRetriever.eof:
     tLoadCommonWordsEnd = time.time()
     tLoadCommonWords += (tLoadCommonWordsEnd - tLoadCommonWordsStart)/10
 
-    print("------ That took " + str(tLoadCommonWordsEnd - tLoadCommonWordsStart) + " seconds to complete ------")
-    print("--- Finished loading most common words in the Tweets ---")
+    if verbose > 1:
+        print("------ That took " + str(tLoadCommonWordsEnd - tLoadCommonWordsStart) + " seconds to complete ------")
+        print("--- Finished loading most common words in the Tweets ---")
 #     ########################################################
 #     #  Open the file to output the words with their index.
 #     ########################################################
@@ -183,7 +190,8 @@ while not tweetRetriever.eof:
     #  Populate the S matrix. This is the matrix with rows the Tweets and columns
     #  the Bag-Of-Words.
     ############################################################################################
-    print("--- Populating matrix ---")
+    if verbose > 1:
+        print("--- Populating matrix ---")
     tPopMatStart = time.time()
     tweetNumber = 0
     # Get the start and end date of the current tweet set
@@ -202,8 +210,9 @@ while not tweetRetriever.eof:
         tweetNumber = tweetNumber + 1
     tPopMatEnd = time.time()
     tPopMat += (tPopMatEnd - tPopMatStart)/10
-    print("--- Finished populating matrix ---")
-    print("------ That took " + str(tPopMatEnd - tPopMatStart) + " seconds to complete ------")
+    if verbose > 1:
+        print("--- Finished populating matrix ---")
+        print("------ That took " + str(tPopMatEnd - tPopMatStart) + " seconds to complete ------")
 
     ############################################################################################
     # Now calculate the Co-occurrence matrix.
@@ -220,8 +229,9 @@ while not tweetRetriever.eof:
     [sparsePC, eigenvalue] = tPAlgorithm.getSparsePC(cooccurrenceMatrix, desiredSparsity)
     tCalculateSPCAEnd = time.time()
     tCalculateSPCA += (tCalculateSPCAEnd - tCalculateSPCAStart)/10
-    print("--- Sparse Eigenvector ---")
-    print(sparsePC.nonzero()[0])
+    if verbose > 1:
+        print("--- Sparse Eigenvector ---")
+        print(sparsePC.nonzero()[0])
 
     ###########################################################################
     # Save all the words corresponding to the indices of the supports returned.
@@ -231,19 +241,20 @@ while not tweetRetriever.eof:
         for word, rank in wordDictCurrent.iteritems():
             if rank == index:
                 pCWords.append(word)
-
-    print(pCWords)
-    print("--- Eigenvalue ---")
-    print(eigenvalue)
-    print("--- Start Date - End Date ---")
-    print(startDate + " - " + endDate)
+    if verbose > 1 or eigenvalue > threshold:
+        print(pCWords)
+        print("--- Eigenvalue ---")
+        print(eigenvalue)
+        print("--- Start Date - End Date ---")
+        print(startDate + " - " + endDate)
 
     #################################################################
     #  Append the data to be saved in the pickle file.
     #################################################################
     toSave.append((pCWords, eigenvalue, startDate, endDate))
     tIterationEnd = time.time()
-    print ("Time for iteration: " + str(tIterationEnd - tIterationStart))
+    if verbose > 1:
+        print ("Time for iteration: " + str(tIterationEnd - tIterationStart))
 
     ##############################################
     # Graph plotting stuff
@@ -263,16 +274,17 @@ totalTime = tLoadCommonWords + tLoadTweets + tPopMat + tBuildCooccurenceMatrix +
 #  Print final statistics for time spent in each portion
 #  of the code.
 ###########################################################
-print("Average proportion of time loading Tweets = " + str(tLoadTweets/totalTime))
-print("Average proportion of time loading common words = " + str(tLoadCommonWords/totalTime))
-print("Average proportion of time populating matrix = " + str(tPopMat/totalTime))
-print("Average proportion of time building co-occurrence matrix = " + str(tBuildCooccurenceMatrix/totalTime))
-print("Average proportion of time calculating Sparse PCA = " + str(tCalculateSPCA/totalTime))
-print("Average time per iteration = " + str(totalTime/len(toSave)))
+if verbose > 1:
+    print("Average proportion of time loading Tweets = " + str(tLoadTweets/totalTime))
+    print("Average proportion of time loading common words = " + str(tLoadCommonWords/totalTime))
+    print("Average proportion of time populating matrix = " + str(tPopMat/totalTime))
+    print("Average proportion of time building co-occurrence matrix = " + str(tBuildCooccurenceMatrix/totalTime))
+    print("Average proportion of time calculating Sparse PCA = " + str(tCalculateSPCA/totalTime))
+    print("Average time per iteration = " + str(totalTime/len(toSave)))
 outputPickle = open(pickleFileName, 'wb')
 pickle.dump(toSave, outputPickle)
 outputPickle.close()
-
-print("--- End ---")
+if verbose > 1:
+    print("--- End ---")
 
 

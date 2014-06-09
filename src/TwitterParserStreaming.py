@@ -47,7 +47,7 @@ if graphPlottingOn:
 # The first argument is always the name of the script. In this case
 # TwitterParserStreaming.py
 if commandLineArguments[1] == "":
-    jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_London_22Sep12_03Oct12'
+    jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_ny'
 else:
     jsonFileName = commandLineArguments[1]
 

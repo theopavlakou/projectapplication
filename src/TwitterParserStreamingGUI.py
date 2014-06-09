@@ -44,10 +44,10 @@ class TwitterStreamingApp(object):
 
         # Graph
         self.figure = Figure(figsize=(5,4), dpi=100)
-        self.p = self.figure.add_subplot(111)
-        self.p.set_title('Eigenvalue vs Window Number')
-        self.p.set_xlabel('Window Number')
-        self.p.set_ylabel('Eigenvalue')
+        self.graph = self.figure.add_subplot(111)
+        self.graph.set_title('Eigenvalue vs Window Number')
+        self.graph.set_xlabel('Window Number')
+        self.graph.set_ylabel('Eigenvalue')
         self.canvas = FigureCanvasTkAgg(self.figure, master=self.root)
         self.canvas.show()
         self.canvas.get_tk_widget().pack(side=LEFT,fill=BOTH, expand=1)
@@ -134,12 +134,11 @@ class TwitterStreamingApp(object):
         if os.path.exists(fileName):
             self.jsonFileName = fileName
             self.printToTextBox(self.jsonFileName + " is a valid path")
-
         else:
+            # TODO: Make a popup box appear here instead.
             self.printToTextBox("== Please input a directory with Tweets in it ==\n")
             self.printToTextBox(fileName + ' is not a valid path')
             return
-
 
         try:
             self.sizeOfWindow = int(self.windowSizeInput.get())
@@ -163,7 +162,7 @@ class TwitterStreamingApp(object):
             print("------ " + str(ve) + " ------ ")
             print("------ Could not convert " + self.sparsityInput.get() + " to an integer. ------")
             print("------ Setting size of window to 10000. ------")
-            self.sparsityInput = 10
+            self.desiredSparsity = 10
 
         self.numberOfWords = 3000
 
@@ -193,7 +192,7 @@ class TwitterStreamingApp(object):
         tPopMat = 0
         tBuildCooccurenceMatrix = 0
         tCalculateSPCA = 0
-
+        eigenvalues = []
         while not self.tweetRetriever.eof:
             count+=1
             tIterationStart = time.time()
@@ -365,17 +364,17 @@ class TwitterStreamingApp(object):
             ##############################################
             # Graph plotting stuff
             ##############################################
+            #TODO: Make it such that it doesn't freeze.
+            eigenvalues.append(eigenvalue)
             if eigenvalue > self.eigenvalueThreshold:
                 if dotProductOldCurrent < self.dotProductThreshold:
-                    plt.scatter(count,eigenvalue, c="red")
+                    self.graph.scatter(count,eigenvalue, c="red")
                 else:
-                    plt.scatter(count,eigenvalue, c="yellow")
+                    self.graph.scatter(count,eigenvalue, c="yellow")
             else:
-                plt.scatter(count,eigenvalue, c="blue")
+                self.graph.scatter(count,eigenvalue, c="blue")
 
-            plt.draw()
-            time.sleep(0.005)
-
+            self.canvas.show()
 
         totalTime = tLoadCommonWords + tLoadTweets + tPopMat + tBuildCooccurenceMatrix + tCalculateSPCA
 

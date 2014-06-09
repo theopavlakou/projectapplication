@@ -20,10 +20,100 @@ import pickle
 from copy import deepcopy
 from DictionaryComparator import DictionaryComparator
 import matplotlib.pyplot as plt
+from Tkinter import *
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.figure import Figure
+import os
+
 
 class TwitterStreamingApp(object):
 
     def __init__(self):
+
+        self.initialised = False
+
+        #####################################################
+        #####################################################
+        ################ Setup GUI stuff ####################
+        #####################################################
+        #####################################################
+        self.root = Tk()
+        self.height = 1360
+        self.width = 820
+        self.root.geometry(str(self.height)+"x"+str(self.width)+"+40+40")
+
+        # Graph
+        self.figure = Figure(figsize=(5,4), dpi=100)
+        self.p = self.figure.add_subplot(111)
+        self.p.set_title('Eigenvalue vs Window Number')
+        self.p.set_xlabel('Window Number')
+        self.p.set_ylabel('Eigenvalue')
+        self.canvas = FigureCanvasTkAgg(self.figure, master=self.root)
+        self.canvas.show()
+        self.canvas.get_tk_widget().pack(side=LEFT,fill=BOTH, expand=1)
+        self.canvas._tkcanvas.pack( fill=BOTH, expand=1)
+
+        ######################################################
+        # Input Frame
+        ######################################################
+        self.inputContainer = Frame(self.root)
+        self.inputContainer.pack(side=TOP,fill=X, pady=4)
+        self.textBoxRowSpan = 6
+
+        # Text
+        self.textBox = Text(self.inputContainer, bg="#CFDAE3", height=40, state=DISABLED)
+        self.textBox.grid(row=0, column=0, rowspan=self.textBoxRowSpan, columnspan=2, sticky=W+E+N+S)
+
+        # File input text box
+        self.fileInput = Entry(self.inputContainer, width=10)
+        self.fileInput.grid(row= self.textBoxRowSpan+1, column=0, columnspan=2, sticky=W+E)
+        self.fileInput.delete(0, END)
+        self.fileInput.insert(0, "Enter file directory for Tweets")
+
+
+        # Window size text box
+        self.windowSizeInput = Entry(self.inputContainer, width=10)
+        self.windowSizeInput.grid(row=self.textBoxRowSpan+2, column=0, columnspan=2, sticky=W+E)
+        self.windowSizeInput.delete(0, END)
+        self.windowSizeInput.insert(0, "Enter number of Tweets per window")
+
+        # Shift size text box
+        self.batchSizeInput = Entry(self.inputContainer, width=10)
+        self.batchSizeInput.grid(row=self.textBoxRowSpan+3, column=0, columnspan=2, sticky=W+E)
+        self.batchSizeInput.delete(0, END)
+        self.batchSizeInput.insert(0, "Enter number of Tweets to shift by")
+
+        # Shift size text box
+        self.sparsityInput = Entry(self.inputContainer, width=10)
+        self.sparsityInput.grid(row=self.textBoxRowSpan+4, column=0, columnspan=2, sticky=W+E)
+        self.sparsityInput.delete(0, END)
+        self.sparsityInput.insert(0, "Enter the desired sparsity")
+
+        # Button Plotting
+        self.button1 = Button(self.inputContainer, command = self.startStreaming, width=15)
+        self.button1.grid(row=self.textBoxRowSpan+5, column=0, sticky=W+E)
+        self.button1.focus_force()
+        self.button1.configure(text = "Start Plotting!")
+
+        # Button Got Files
+        self.buttonFiles = Button(self.inputContainer, command= self.initialise, width=15)
+        self.buttonFiles.grid(row=self.textBoxRowSpan+5, column=1, sticky=W+E)
+        self.buttonFiles.configure(text = "Print this!")
+        self.root.mainloop()
+
+    def printToTextBox(self, string):
+        self.textBox.configure(state=NORMAL)
+        self.textBox.insert(INSERT,string+"\n")
+        self.textBox.configure(state=DISABLED)
+
+    def printInputs(self):
+        v = self.fileInput.get()+"\n"
+        self.printToTextBox(v)
+
+    def initialise(self):
+        ####################################################
+        #  Initialize the objects
+        ####################################################
         # TODO: Get rid of ./Pickles as this isn't in the repository.
         # The output pickle file name. CHANGE to the desired location.
         self.pickleFileName = "./Pickles/pCPickle.pkl"
@@ -39,27 +129,55 @@ class TwitterStreamingApp(object):
         # similarity of two principal components.
         self.dotProductThreshold = 0.85
         self.smallPCOld = {}
-        self.jsonFileName = '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_ny'
-        self.sizeOfWindow = 10000
-        self.batchSize = 1000
-        self.numberOfWords = 3000
-        self.desiredSparsity = 10
+        # Get the file name from the text box
+        fileName = self.fileInput.get()
+        if os.path.exists(fileName):
+            self.jsonFileName = fileName
+            self.printToTextBox(self.jsonFileName + " is a valid path")
 
-    def initialise(self):
-        ####################################################
-        #  Initialize the objects
-        ####################################################
+        else:
+            self.printToTextBox("== Please input a directory with Tweets in it ==\n")
+            self.printToTextBox(fileName + ' is not a valid path')
+            return
+
+
+        try:
+            self.sizeOfWindow = int(self.windowSizeInput.get())
+        except ValueError as ve:
+            print("------ " + str(ve) + " ------ ")
+            print("------ Could not convert " + self.windowSizeInput.get() + " to an integer. ------")
+            print("------ Setting size of window to 10000. ------")
+            self.sizeOfWindow = 10000
+
+        try:
+            self.batchSize = int(self.batchSizeInput.get())
+        except ValueError as ve:
+            print("------ " + str(ve) + " ------ ")
+            print("------ Could not convert " + self.batchSizeInput.get() + " to an integer. ------")
+            print("------ Setting size of window to 10000. ------")
+            self.batchSize = 1000
+
+        try:
+            self.desiredSparsity = int(self.sparsityInput.get())
+        except ValueError as ve:
+            print("------ " + str(ve) + " ------ ")
+            print("------ Could not convert " + self.sparsityInput.get() + " to an integer. ------")
+            print("------ Setting size of window to 10000. ------")
+            self.sparsityInput = 10
+
+        self.numberOfWords = 3000
+
         self.tweetRetriever = TweetRetriever(self.jsonFileName, self.sizeOfWindow, self.batchSize)
         self.tweetRetriever.initialise()
         self.tPAlgorithm = TPowerAlgorithm()
         self.matrixBuilder = MatrixBuilder(self.sizeOfWindow, self.numberOfWords)
-        self.fig = plt.figure()
-        plt.show(block=False)
-        plt.xlabel("Window number")
-        plt.ylabel("Eigenvalue")
-        plt.title("Eigenvalue vs window number")
+        self.printInputs()
+        self.initialised = True
 
-    def startLoadingTweets(self):
+    def startStreaming(self):
+        if not self.initialised:
+            # TODO: make a popup box here
+            return
         ####################################################
         #  Load the Tweets from the file
         ####################################################
@@ -76,7 +194,6 @@ class TwitterStreamingApp(object):
         tBuildCooccurenceMatrix = 0
         tCalculateSPCA = 0
 
-        t0 = time.time()
         while not self.tweetRetriever.eof:
             count+=1
             tIterationStart = time.time()
@@ -260,7 +377,6 @@ class TwitterStreamingApp(object):
             time.sleep(0.005)
 
 
-        t1 = time.time()
         totalTime = tLoadCommonWords + tLoadTweets + tPopMat + tBuildCooccurenceMatrix + tCalculateSPCA
 
         ###########################################################
@@ -279,7 +395,5 @@ class TwitterStreamingApp(object):
         outputPickle.close()
         print("--- End ---")
 
-tsa = TwitterStreamingApp()
-tsa.initialise()
-tsa.startLoadingTweets()
 
+m = TwitterStreamingApp()

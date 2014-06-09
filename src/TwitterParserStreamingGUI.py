@@ -31,6 +31,7 @@ class TwitterStreamingApp(object):
     def __init__(self):
 
         self.initialised = False
+        self.eigenvalues = []
 
         #####################################################
         #####################################################
@@ -68,7 +69,9 @@ class TwitterStreamingApp(object):
         self.fileInput = Entry(self.inputContainer, width=10)
         self.fileInput.grid(row= self.textBoxRowSpan+1, column=0, columnspan=2, sticky=W+E)
         self.fileInput.delete(0, END)
-        self.fileInput.insert(0, "Enter file directory for Tweets")
+        #TODO: Change this
+#         self.fileInput.insert(0, "Enter file directory for Tweets")
+        self.fileInput.insert(0, '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_ny')
 
 
         # Window size text box
@@ -192,7 +195,6 @@ class TwitterStreamingApp(object):
         tPopMat = 0
         tBuildCooccurenceMatrix = 0
         tCalculateSPCA = 0
-        eigenvalues = []
         while not self.tweetRetriever.eof:
             count+=1
             tIterationStart = time.time()
@@ -345,7 +347,7 @@ class TwitterStreamingApp(object):
                 print("--- Printing dot product ---")
                 print(dotProductOldCurrent)
 
-            smallPCOld = smallPC
+            self.smallPCOld = smallPC
             if self.verbose > 1 or (eigenvalue > self.eigenvalueThreshold and dotProductOldCurrent < self.dotProductThreshold):
                 print(pCWords)
                 print("--- Eigenvalue ---")
@@ -365,7 +367,7 @@ class TwitterStreamingApp(object):
             # Graph plotting stuff
             ##############################################
             #TODO: Make it such that it doesn't freeze.
-            eigenvalues.append(eigenvalue)
+            self.eigenvalues.append(eigenvalue)
             if eigenvalue > self.eigenvalueThreshold:
                 if dotProductOldCurrent < self.dotProductThreshold:
                     self.graph.scatter(count,eigenvalue, c="red")

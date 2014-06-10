@@ -77,7 +77,7 @@ class TwitterStreamingApp(object):
         self.fileInput.delete(0, END)
         #TODO: Change this
 #         self.fileInput.insert(0, "Enter file directory for Tweets")
-        self.fileInput.insert(0, '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_ny')
+        self.fileInput.insert(0, '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_London_22Sep12_03Oct12')
 
 
         # Window size text box
@@ -100,14 +100,14 @@ class TwitterStreamingApp(object):
 
         # Button Plotting
         self.button1 = Button(self.inputContainer, command = self.initiateStartStreaming, width=15)
-        self.button1.grid(row=self.textBoxRowSpan+5, column=0, sticky=W+E)
+        self.button1.grid(row=self.textBoxRowSpan+5, column=1, sticky=W+E)
         self.button1.focus_force()
         self.button1.configure(text = "Start Plotting!")
 
         # Button Got Files
         self.buttonFiles = Button(self.inputContainer, command= self.initialise, width=15)
-        self.buttonFiles.grid(row=self.textBoxRowSpan+5, column=1, sticky=W+E)
-        self.buttonFiles.configure(text = "Print this!")
+        self.buttonFiles.grid(row=self.textBoxRowSpan+5, column=0, sticky=W+E)
+        self.buttonFiles.configure(text = "Load Files")
 
         self.root.mainloop()
 

@@ -84,7 +84,7 @@ except ValueError as ve:
 # The output pickle file name. CHANGE to the desired location.
 pickleFileName = "./Pickles/pCPickle_" + str(sizeOfWindow) + "_" + str(batchSize) + ".pkl"
 # Controls the message output. A higher value means that more will be displayed.
-verbose = 1
+verbose = 4
 #####################################################
 # Initialise thresholds.
 # These control whether the words of the pcs should be

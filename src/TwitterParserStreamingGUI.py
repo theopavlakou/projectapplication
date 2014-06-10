@@ -93,10 +93,10 @@ class TwitterStreamingApp(object):
         self.sparsityInput.insert(0, "Enter the desired sparsity")
 
         # Button Plotting
-        self.button1 = Button(self.inputContainer, command = self.startStreaming, width=15)
-        self.button1.grid(row=self.textBoxRowSpan+5, column=0, sticky=W+E)
-        self.button1.focus_force()
-        self.button1.configure(text = "Start Plotting!")
+        self.buttonStart = Button(self.inputContainer, command = self.startStreaming, width=15)
+        self.buttonStart.grid(row=self.textBoxRowSpan+5, column=0, sticky=W+E)
+        self.buttonStart.focus_force()
+        self.buttonStart.configure(text = "Start Plotting!")
 
         # Button Got Files
         self.buttonFiles = Button(self.inputContainer, command= self.initialise, width=15)

@@ -68,8 +68,10 @@ class TwitterStreamingApp(object):
         self.textBoxRowSpan = 6
 
         # Text
-        self.textBox = Text(self.inputContainer, bg="#CFDAE3", height=40, state=DISABLED)
+        self.textBox = Text(self.inputContainer, bg="#CFDAE3", height=40, state=DISABLED, fg="black")
         self.textBox.grid(row=0, column=0, rowspan=self.textBoxRowSpan, columnspan=2, sticky=W+E+N+S)
+        self.textBox.tag_add("event_colour", "1.0", "1.4")
+        self.textBox.tag_config("event_colour", background="yellow", foreground="red")
 
         # File input text box
         self.fileInput = Entry(self.inputContainer, width=10)
@@ -84,25 +86,25 @@ class TwitterStreamingApp(object):
         self.windowSizeInput = Entry(self.inputContainer, width=10)
         self.windowSizeInput.grid(row=self.textBoxRowSpan+2, column=0, columnspan=2, sticky=W+E)
         self.windowSizeInput.delete(0, END)
-        self.windowSizeInput.insert(0, "Enter number of Tweets per window")
+        self.windowSizeInput.insert(0, "Enter number of Tweets per window (Default = 10000)")
 
         # Shift size text box
         self.batchSizeInput = Entry(self.inputContainer, width=10)
         self.batchSizeInput.grid(row=self.textBoxRowSpan+3, column=0, columnspan=2, sticky=W+E)
         self.batchSizeInput.delete(0, END)
-        self.batchSizeInput.insert(0, "Enter number of Tweets to shift by")
+        self.batchSizeInput.insert(0, "Enter number of Tweets to shift by (Default = 1000)")
 
         # Shift size text box
         self.sparsityInput = Entry(self.inputContainer, width=10)
         self.sparsityInput.grid(row=self.textBoxRowSpan+4, column=0, columnspan=2, sticky=W+E)
         self.sparsityInput.delete(0, END)
-        self.sparsityInput.insert(0, "Enter the desired sparsity")
+        self.sparsityInput.insert(0, "Enter the desired sparsity (Default = 10)")
 
         # Button Plotting
-        self.button1 = Button(self.inputContainer, command = self.initiateStartStreaming, width=15)
-        self.button1.grid(row=self.textBoxRowSpan+5, column=1, sticky=W+E)
-        self.button1.focus_force()
-        self.button1.configure(text = "Start Plotting!")
+        self.buttonStart = Button(self.inputContainer, command = self.initiateStartStreaming, width=15, bg="blue")
+        self.buttonStart.grid(row=self.textBoxRowSpan+5, column=1, sticky=W+E)
+        self.buttonStart.focus_force()
+        self.buttonStart.configure(text = "Start Streaming!")
 
         # Button Got Files
         self.buttonFiles = Button(self.inputContainer, command= self.initialise, width=15)
@@ -186,17 +188,25 @@ class TwitterStreamingApp(object):
             self.windowNumber += 1
             # TODO: Work with threshold also and words
             (pCWords, eigenvalue, dotProductOldCurrent, startDate, endDate) = self.sharedQueue.get_nowait()
-            print(eigenvalue)
             self.eigenvalues.append(eigenvalue)
-            print(self.eigenvalues)
-            print(self.windowNumbers)
+
             if eigenvalue > self.eigenvalueThreshold:
                 if dotProductOldCurrent < self.dotProductThreshold:
                     self.graph.scatter(self.windowNumber, eigenvalue, c="red")
+                    pCWordsString = ""
+                    for word in pCWords:
+                        pCWordsString += word + ", "
+                    pCWordsString = pCWordsString[:-2]
+                    self.printToTextBox("===========================================================================")
+                    self.printToTextBox("Event with words: " + pCWordsString)
+                    self.printToTextBox("At: " + startDate+ " - " + endDate)
+                    self.printToTextBox("===========================================================================")
+
                 else:
                     self.graph.scatter(self.windowNumber, eigenvalue, c="yellow")
             else:
                 self.graph.scatter(self.windowNumber, eigenvalue, c="blue")
+
 
             self.canvas.show()
         else:
@@ -245,7 +255,7 @@ class CalculatorThread(Thread):
         # TODO: Get rid of ./Pickles as this isn't in the repository.
         # The output pickle file name. CHANGE to the desired location.
         self.pickleFileName = "./Pickles/pCPickle.pkl"
-        self.verbose = 3
+        self.verbose = 1
 
         # TODO: Get rid of this
 #         self.smallPCOld = {}

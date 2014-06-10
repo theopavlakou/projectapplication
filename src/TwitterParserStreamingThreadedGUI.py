@@ -27,7 +27,13 @@ import os
 from Queue import Queue
 from threading import Thread
 import tkMessageBox
+
 class TwitterStreamingApp(object):
+    """
+    This is the GUI part of the Twitter Streaming Application.
+    It takes care of the GUI and the plotting of the graph once points have
+    been calculated from its member CalculatorThread.
+    """
     def __init__(self):
 
         self.initialised = False
@@ -152,6 +158,7 @@ class TwitterStreamingApp(object):
         self.initialiseThresholds(130, 0.85)
 
 
+        # TODO: Must have better user checking than this
         # Get the file name from the text box
         fileName = self.fileInput.get()
 
@@ -248,6 +255,13 @@ class TwitterStreamingApp(object):
         tkMessageBox.showerror("Error", "You have not loaded the files yet")
 
 class CalculatorThread(Thread):
+    """
+    Performs the algorithmic part of the algorithm. It collects the Tweets, builds
+    the matrix and then calculates the sparse principal components for the window.
+    It keeps doing this, adding the results to a queue shared with the GUI.
+    It runs as a separate thread so that the GUI doesn't freeze while it is
+    calculating new points.
+    """
     def __init__(self, sharedQueue, desiredSparsity, tweetRetriever, tPAlgorithm, matrixBuilder):
         Thread.__init__(self)
         self.queue = sharedQueue
@@ -271,6 +285,13 @@ class CalculatorThread(Thread):
         self.currentWindowNumber = 0
 
     def loadTweets(self):
+        """
+        Loads the Tweets from the file specified.
+        Outputs:
+            tweetSet:    The set of Tweets from the current window.
+            oldBatch:    Set of Tweets in previous window that aren't in the
+                         current window.
+        """
         if self.verbose > 1:
             print("--- Loading Tweets ---")
         (tweetSet, oldBatch) = self.tweetRetriever.getNextWindow()
@@ -281,6 +302,20 @@ class CalculatorThread(Thread):
         return (tweetSet, oldBatch)
 
     def getBagOfWords(self, tweetSet, oldBatch):
+        """
+        Creates the Bag-Of-Words using the current Tweets and the previous window.
+        Inputs:
+            tweetSet:    Set of current Tweets.
+            oldBatch:    Set of Tweets in previous window that aren't in the
+                         current window.
+        Outputs:
+            wordDictCurrent:     Bag-Of-Words for current window.
+            indexChanges:        A dictionary which maps the indices of the current
+                                 Bag-of-Words to the indices of the old
+                                 Bag-of-Words for the words which are
+                                 common to both. The keys are the current indices
+                                 and the values are the old indices.
+        """
         if self.verbose > 1:
             print("--- Loading most common words in the Tweets ---")
         dictOfWordsOld = DictionaryOfWords()
@@ -309,6 +344,14 @@ class CalculatorThread(Thread):
         return (wordDictCurrent, indexChanges)
 
     def populateDataMatrix(self, tweetSet, wordDictCurrent):
+        """
+        Populates the data matrix with columns the indices of the words in the
+        current Bag-Of-Words and rows the Tweets.
+        Inputs:
+            tweetSet:            The set of Tweets from the current window.
+            wordDictCurrent:     Bag-Of-Words for current window.
+
+        """
         if self.verbose > 1:
             print("--- Populating matrix ---")
         tweetNumber = 0

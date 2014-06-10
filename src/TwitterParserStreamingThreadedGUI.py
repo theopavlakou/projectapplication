@@ -26,24 +26,23 @@ from matplotlib.figure import Figure
 import os
 from Queue import Queue
 from threading import Thread
+import tkMessageBox
 class TwitterStreamingApp(object):
     def __init__(self):
 
         self.initialised = False
-        self.eigenvalues = []
         self.windowNumbers = []
         self.windowNumber = 0
 
+        # Callback delay (refresh rate) for graph plotting
+        self.callbackDelay = 1000
 
-        # Setup GUI stuff
         self.setupGUI()
 
     def setupGUI(self):
-        #####################################################
-        #####################################################
-        ################ Setup GUI stuff ####################
-        #####################################################
-        #####################################################
+        """
+        Sets up the GUI and starts it up.
+        """
         self.root = Tk()
         self.height = 1360
         self.width = 820
@@ -114,22 +113,37 @@ class TwitterStreamingApp(object):
         self.root.mainloop()
 
     def printToTextBox(self, string):
+        """
+        Prints to the text box of the GUI.
+        Inputs:
+            string:    The string to be printed to the text box.
+        """
         self.textBox.configure(state=NORMAL)
         self.textBox.insert(INSERT,string+"\n")
         self.textBox.configure(state=DISABLED)
 
     def initialiseThresholds(self, eigenvalueThreshold, dotProductThreshold):
-        #####################################################
-        # Initialise thresholds.
-        # These control whether the words of the pcs should be
-        # printed.
-        #####################################################
+        """
+        Initialise the thresholds of the eigenvalue and the dot product.
+        These are used to figure out which colour the graph should plot with.
+        Inputs:
+            eigenvalueThreshold:    Threshold for the eigenvalue associated with
+                                    the principal components.
+            dotProductThreshold:    Threshold for the dot product between the
+                                    previous principal component and the current.
+        """
         self.eigenvalueThreshold = eigenvalueThreshold
         # This should be between 0 and 1 and gives the
         # similarity of two principal components.
         self.dotProductThreshold = dotProductThreshold
 
     def initialise(self):
+        """
+        Takes all the inputs from the GUI and sets up member variables.
+        Must be called before startStreaming.
+        """
+
+        # If already initialised, do nothing
         if self.initialised == True:
             self.printToTextBox("Cannot re-initialise. Must quit and then start again.")
             return
@@ -180,15 +194,14 @@ class TwitterStreamingApp(object):
     def startStreaming(self):
         """
         Checks whether the shared queue with the calculatorThread has a new
-        element (i.e. a new calculation has finished) and then plots the points.
+        element (i.e. a new calculation has finished) and then plots the point.
         Keeps being called by the GUI once it is called the first time.
         """
         if not self.sharedQueue.empty():
             self.windowNumbers.append(self.windowNumber)
             self.windowNumber += 1
-            # TODO: Work with threshold also and words
+            # TODO: Should actually have a whole new GraphPlotter class for this
             (pCWords, eigenvalue, dotProductOldCurrent, startDate, endDate) = self.sharedQueue.get_nowait()
-            self.eigenvalues.append(eigenvalue)
 
             if eigenvalue > self.eigenvalueThreshold:
                 if dotProductOldCurrent < self.dotProductThreshold:
@@ -207,26 +220,18 @@ class TwitterStreamingApp(object):
             else:
                 self.graph.scatter(self.windowNumber, eigenvalue, c="blue")
 
-
             self.canvas.show()
         else:
             pass
-        # Calls again in 1 second
-        self.root.after(1000, self.startStreaming)
-
-#
-#         if self.verbose > 1 or (eigenvalue > self.eigenvalueThreshold and dotProductOldCurrent < self.dotProductThreshold):
-#                     print(pCWords)
-#                     print("--- Eigenvalue ---")
-#                     print(eigenvalue)
-#                     print("--- Start Date - End Date ---")
-#                     print(startDate + " - " + endDate)
+        # Calls again after self.callbackDelay ms
+        self.root.after(self.callbackDelay, self.startStreaming)
 
     def initiateStartStreaming(self):
         if not self.initialised:
-            # TODO: make a popup box here
+            self.onError()
             return
         self.calculatorThread.start()
+        self.printToTextBox("---- Starting to stream ----")
         self.startStreaming()
 
     def initialiseCalculatorThread(self):
@@ -238,6 +243,9 @@ class TwitterStreamingApp(object):
         self.matrixBuilder = MatrixBuilder(self.sizeOfWindow, numberOfWords)
         self.sharedQueue = Queue()
         self.calculatorThread = CalculatorThread(self.sharedQueue, self.desiredSparsity, self.tweetRetriever, self.tPAlgorithm, self.matrixBuilder)
+
+    def onError(self):
+        tkMessageBox.showerror("Error", "You have not loaded the files yet")
 
 class CalculatorThread(Thread):
     def __init__(self, sharedQueue, desiredSparsity, tweetRetriever, tPAlgorithm, matrixBuilder):

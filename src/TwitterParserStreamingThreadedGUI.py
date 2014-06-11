@@ -372,6 +372,20 @@ class CalculatorThread(Thread):
             print("--- Finished populating matrix ---")
 
     def getPCWordsAndIndicesFromPC(self, sparsePC, wordDictCurrent):
+        """
+        Gets the words and the indices of the words that the current principal
+        component refers to.
+        Inputs:
+            wordDictCurrent:     Bag-Of-Words for current window.
+            sparsePC:            Sparse principal component for current window.
+        Outputs:
+            pCWords:            A list of strings with the words associated with
+                                the current principal component.
+            smallPC:            A dictionary with key the index of the word in
+                                and the current sparse principal component and
+                                value the weighting of the loading of the word.
+
+        """
         pCWords = []
         smallPC = {}
         for index in sparsePC.nonzero()[0]:
@@ -382,6 +396,26 @@ class CalculatorThread(Thread):
         return (pCWords, smallPC)
 
     def getDotProductOldCurrent(self, indexChanges, smallPCOld, smallPC):
+        """
+        Gets the dot product of the old principal component and the current
+        principal component.
+        Inputs:
+            indexChanges:       A dictionary which maps the indices of the current
+                                Bag-of-Words to the indices of the old
+                                Bag-of-Words for the words which are
+                                common to both. The keys are the current indices
+                                and the values are the old indices.
+            smallPCOld:         A dictionary with key the index of the word in
+                                and the old sparse principal component and
+                                value the weighting of the loading of the word.
+            smallPC:            A dictionary with key the index of the word in
+                                and the current sparse principal component and
+                                value the weighting of the loading of the word.
+        Outputs:
+            dotProductOldCurrent:    The dot product between the old and current
+                                     principal component.
+
+        """
         dotProductOldCurrent = 0
         if self.currentWindowNumber > 1:
             if self.verbose > 3:
@@ -395,6 +429,10 @@ class CalculatorThread(Thread):
 
 
     def run(self):
+        """
+        Runs the algorithm. This is run on its own thread and the results are
+        pushed onto a shared queue so as to not freeze the GUI.
+        """
         while True:
 
             toSaveToPickle = []

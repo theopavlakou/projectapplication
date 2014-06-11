@@ -42,6 +42,8 @@ class TwitterStreamingApp(object):
 
         # Callback delay (refresh rate) for graph plotting
         self.callbackDelay = 1000
+        # TODO: Should not be in this class
+        self.previousEigenvalue = 0
 
         self.setupGUI()
 
@@ -229,14 +231,19 @@ class TwitterStreamingApp(object):
             (pCWords, eigenvalue, dotProductOldCurrent, startDate, endDate) = self.sharedQueue.get_nowait()
 
             if eigenvalue > self.eigenvalueThreshold:
+
                 if dotProductOldCurrent < self.dotProductThreshold:
                     self.graph.scatter(self.windowNumber, eigenvalue, c="red")
                     self.printEvent(pCWords, startDate, endDate)
                 else:
-                    self.graph.scatter(self.windowNumber, eigenvalue, c="yellow")
+                    if self.previousEigenvalue <= self.eigenvalueThreshold:
+                        self.graph.scatter(self.windowNumber, eigenvalue, c="red")
+                        self.printEvent(pCWords, startDate, endDate)
+                    else:
+                        self.graph.scatter(self.windowNumber, eigenvalue, c="yellow")
             else:
                 self.graph.scatter(self.windowNumber, eigenvalue, c="blue")
-
+            self.previousEigenvalue = eigenvalue
             self.canvas.show()
         else:
             pass

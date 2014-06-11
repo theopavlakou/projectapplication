@@ -198,6 +198,24 @@ class TwitterStreamingApp(object):
         self.initialiseCalculatorThread()
         self.initialised = True
 
+    def printEvent(self, pCWords, startDate, endDate):
+        """
+        Print an event that occurs to the text box of the GUI.
+        Inputs:
+            pCWords:        A list of strings of words associated with the
+                            sparse principal component.
+            startDate:      The date of the first Tweet in the current window.
+            endDate:        The date of the last Tweet in the current window.
+        """
+        pCWordsString = ""
+        for word in pCWords:
+            pCWordsString += word + ", "
+        pCWordsString = pCWordsString[:-2]
+        self.printToTextBox("===========================================================================")
+        self.printToTextBox("Event with words: " + pCWordsString)
+        self.printToTextBox("At: " + startDate+ " - " + endDate)
+        self.printToTextBox("===========================================================================")
+
     def startStreaming(self):
         """
         Checks whether the shared queue with the calculatorThread has a new
@@ -213,15 +231,7 @@ class TwitterStreamingApp(object):
             if eigenvalue > self.eigenvalueThreshold:
                 if dotProductOldCurrent < self.dotProductThreshold:
                     self.graph.scatter(self.windowNumber, eigenvalue, c="red")
-                    pCWordsString = ""
-                    for word in pCWords:
-                        pCWordsString += word + ", "
-                    pCWordsString = pCWordsString[:-2]
-                    self.printToTextBox("===========================================================================")
-                    self.printToTextBox("Event with words: " + pCWordsString)
-                    self.printToTextBox("At: " + startDate+ " - " + endDate)
-                    self.printToTextBox("===========================================================================")
-
+                    self.printEvent(pCWords, startDate, endDate)
                 else:
                     self.graph.scatter(self.windowNumber, eigenvalue, c="yellow")
             else:

@@ -118,7 +118,15 @@ class TwitterStreamingApp(object):
         self.buttonFiles.grid(row=self.textBoxRowSpan+5, column=0, sticky=W+E)
         self.buttonFiles.configure(text = "Load Files")
 
+        # Button Quit
+        self.buttonQuit = Button(self.inputContainer, command= self.quit, width=30)
+        self.buttonQuit.grid(row =self.textBoxRowSpan+6, column=0, columnspan=2, sticky=W+E)
+        self.buttonQuit.configure(text = "Quit")
+
         self.root.mainloop()
+
+    def quit(self):
+        sys.exit()
 
     def printToTextBox(self, string):
         """
@@ -157,7 +165,7 @@ class TwitterStreamingApp(object):
             return
         # TODO: Don't hard code these
         # Are needed to print the graphs.
-        self.initialiseThresholds(130, 0.85)
+        self.initialiseThresholds(180, 0.85)
 
 
         # TODO: Must have better user checking than this
@@ -267,6 +275,7 @@ class TwitterStreamingApp(object):
         self.matrixBuilder = MatrixBuilder(self.sizeOfWindow, numberOfWords)
         self.sharedQueue = Queue()
         self.calculatorThread = CalculatorThread(self.sharedQueue, self.desiredSparsity, self.tweetRetriever, self.tPAlgorithm, self.matrixBuilder)
+        self.calculatorThread.daemon = True
 
     def onError(self):
         tkMessageBox.showerror("Error", "You have not loaded the files yet")

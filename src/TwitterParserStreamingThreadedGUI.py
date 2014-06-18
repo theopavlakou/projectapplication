@@ -44,7 +44,7 @@ class TwitterStreamingApp(object):
         self.callbackDelay = 1000
         # TODO: Should not be in this class
         self.previousEigenvalue = 0
-
+        self.stopCallback = False
         self.setupGUI()
 
     def setupGUI(self):
@@ -86,7 +86,7 @@ class TwitterStreamingApp(object):
         self.fileInput.delete(0, END)
         #TODO: Change this
 #         self.fileInput.insert(0, "Enter file directory for Tweets")
-        self.fileInput.insert(0, '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/tweets_London_22Sep12_03Oct12')
+        self.fileInput.insert(0, '/Users/theopavlakou/Documents/Imperial/Fourth_Year/MEng_Project/TWITTER Research/Data (100k tweets from London)/ProjectApplication/src/Tweet_Files/police_murders')
 
 
         # Window size text box
@@ -194,7 +194,7 @@ class TwitterStreamingApp(object):
         except ValueError as ve:
             print("------ " + str(ve) + " ------ ")
             print("------ Could not convert " + self.batchSizeInput.get() + " to an integer. ------")
-            print("------ Setting size of window to 10000. ------")
+            print("------ Setting shift size to 1000. ------")
             self.batchSize = 1000
 
         try:
@@ -202,7 +202,7 @@ class TwitterStreamingApp(object):
         except ValueError as ve:
             print("------ " + str(ve) + " ------ ")
             print("------ Could not convert " + self.sparsityInput.get() + " to an integer. ------")
-            print("------ Setting size of window to 10000. ------")
+            print("------ Setting desired sparsity to 10 ------")
             self.desiredSparsity = 10
 
         self.initialiseCalculatorThread()
@@ -236,27 +236,34 @@ class TwitterStreamingApp(object):
             self.windowNumbers.append(self.windowNumber)
             self.windowNumber += 1
             # TODO: Should actually have a whole new GraphPlotter class for this
-            (pCWords, eigenvalue, dotProductOldCurrent, startDate, endDate) = self.sharedQueue.get_nowait()
+            item = self.sharedQueue.get_nowait()
+            if isinstance(item, StopCallbackCommand):
+                self.stopCallback = True
+            else:
+                (pCWords, eigenvalue, dotProductOldCurrent, startDate, endDate) = item
+                if eigenvalue > self.eigenvalueThreshold:
 
-            if eigenvalue > self.eigenvalueThreshold:
-
-                if dotProductOldCurrent < self.dotProductThreshold:
-                    self.graph.scatter(self.windowNumber, eigenvalue, c="red")
-                    self.printEvent(pCWords, startDate, endDate)
-                else:
-                    if self.previousEigenvalue <= self.eigenvalueThreshold:
+                    if dotProductOldCurrent < self.dotProductThreshold:
                         self.graph.scatter(self.windowNumber, eigenvalue, c="red")
                         self.printEvent(pCWords, startDate, endDate)
                     else:
-                        self.graph.scatter(self.windowNumber, eigenvalue, c="yellow")
-            else:
-                self.graph.scatter(self.windowNumber, eigenvalue, c="blue")
-            self.previousEigenvalue = eigenvalue
-            self.canvas.show()
+                        if self.previousEigenvalue <= self.eigenvalueThreshold:
+                            self.graph.scatter(self.windowNumber, eigenvalue, c="red")
+                            self.printEvent(pCWords, startDate, endDate)
+                        else:
+                            self.graph.scatter(self.windowNumber, eigenvalue, c="yellow")
+                else:
+                    self.graph.scatter(self.windowNumber, eigenvalue, c="blue")
+                self.previousEigenvalue = eigenvalue
+                self.canvas.show()
         else:
             pass
-        # Calls again after self.callbackDelay ms
-        self.root.after(self.callbackDelay, self.startStreaming)
+
+        if self.stopCallback == False:
+            # Calls again after self.callbackDelay ms
+            self.root.after(self.callbackDelay, self.startStreaming)
+        else:
+            self.printToTextBox("---- Finished Streaming ----")
 
     def initiateStartStreaming(self):
         if not self.initialised:
@@ -304,9 +311,6 @@ class CalculatorThread(Thread):
         # The output pickle file name. CHANGE to the desired location.
         self.pickleFileName = "./Pickles/pCPickle.pkl"
         self.verbose = 1
-
-        # TODO: Get rid of this
-#         self.smallPCOld = {}
 
         self.currentWindowNumber = 0
 
@@ -586,6 +590,13 @@ class CalculatorThread(Thread):
             outputPickle = open(self.pickleFileName, 'wb')
             pickle.dump(toSaveToPickle, outputPickle)
             outputPickle.close()
+            self.queue.put(StopCallbackCommand())
             print("--- End ---")
+
+            break
+
+class StopCallbackCommand:
+    def __init__(self):
+        self.description = "Stopping callback..."
 
 m = TwitterStreamingApp()

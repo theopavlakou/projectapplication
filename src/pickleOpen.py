@@ -12,14 +12,16 @@ from TwitterGraphPlotter import TwitterGraphPlotter
 if __name__ == '__main__':
     windowSize = 10000
     incrementSize = 1000
-    pkl_file = open('pCPickle_ny_' + str(windowSize) + '_' + str(incrementSize) + '.pkl', 'rb')
+    pkl_file = open('./Pickles/pCPickle.pkl', 'rb')
+#     pkl_file = open('pCPickle_ny_' + str(windowSize) + '_' + str(incrementSize) + '.pkl', 'rb')
     data1 = pickle.load(pkl_file)
     pprint.pprint(data1)
     pkl_file.close()
 
-    textFile = open('data_us_' + str(windowSize) + '_' + str(incrementSize), 'w')
-    for (array, eigVal, startDate, endDate) in data1:
-        textFile.write(str(array) + '\t' + str(eigVal) +'\t' + startDate + '\t' + endDate + '\n')
+#     textFile = open('data_us_' + str(windowSize) + '_' + str(incrementSize), 'w')
+    textFile = open('./Data/data_demo', 'w')
+    for (array, eigVal, dotProduct, startDate, endDate) in data1:
+        textFile.write(str(array) + '\t' + str(eigVal)+ '\t' + str(dotProduct) +'\t' + startDate + '\t' + endDate + '\n')
     textFile.close()
     fig = plt.figure()
     plt.xlabel("Time")

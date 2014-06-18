@@ -596,6 +596,9 @@ class CalculatorThread(Thread):
             break
 
 class StopCallbackCommand:
+    """
+    An object that is used to show that the collback should stop being called.
+    """
     def __init__(self):
         self.description = "Stopping callback..."
 
